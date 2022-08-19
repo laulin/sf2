@@ -24,7 +24,7 @@ class Editor:
     def _create_menu(self)->None:
         with dpg.viewport_menu_bar():
             with dpg.menu(label="File"):
-                dpg.add_menu_item(label="Save", callback=self.save)
+                dpg.add_menu_item(label="Save (ctrl+s)", callback=self.save)
                 dpg.add_menu_item(label="Quit", callback=self.on_close)
 
     def create(self):
