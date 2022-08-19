@@ -18,7 +18,12 @@ def main():
 
     if args.encrypt:
         print("We recommand min 12 chars with a-z, A-Z, 0-9 and special symbol")
-        password = getpass()
+        password1 = getpass("Password : ")
+        password2 = getpass("Confirm password : ")
+        if password1 != password2:
+            print("Password are not the same, abord")
+            sys.exit(-1)
+        password = password1
         cipher = Cipher()
         try:
             cipher.encrypt_file(password, args.infilename, args.outfilename)
