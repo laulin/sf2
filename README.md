@@ -67,13 +67,23 @@ To check a password on a file, run this command :
 
 After entering the password, it will display "OK" or "FAILED !". I think it's pretty clear
 
-### Edit with GUI
+### Edit with internal GUI
 
 Now you can edit you file with a primitive GUI : 
 
 `sf2 --edit -i your_encrypted_file.x `
 
 This will display a wonderfully simplistic interface, where you can save and copy paste. 
+
+### Edit with external GUI
+
+Like previously, you can edit you file, but with external editor (nano, vim, mousepad, etc). Default is *mousepad* : 
+
+`sf2 --external -i your_encrypted_file.x `
+
+To select another editor (let's say nano) :
+
+`sf2 --external -i your_encrypted_file.x --editor nano`
 
 ### Create a new encrypted file
 
@@ -83,7 +93,7 @@ To create a new empty and encrypt file, run this command :
 
 ## Practical considerations
 
-If you expect to protect a file from a data disclosure in case of hardware theft, **never** store you sensitive file on the hardware. If you need to use another editor than the one included in SF2, you must extract your file to a RAM partition (TMPFS, RAMFS). 
+If you expect to protect a file from a data disclosure in case of hardware theft, **never** store you sensitive file on the hardware. If you need to use another editor than the one included in SF2, you must extract your file to a RAM partition (TMPFS, RAMFS). Prefered using --external option in this case, more easy. 
 
 ## Supported system
 

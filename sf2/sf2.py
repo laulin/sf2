@@ -3,7 +3,9 @@ import sys
 
 from sf2.args import get_args
 from sf2.cipher import Cipher
+from sf2.extern import Extern
 
+# prevent trouble on cli only env
 try:
     from sf2.editor import Editor
 except Exception as e:
@@ -92,6 +94,23 @@ def main():
         editor = Editor(password, args.infilename)
         editor.load()
         editor.create()
+
+    elif args.external:
+        password = getpass()
+        cipher = Cipher()
+
+        try:
+            is_ok = cipher.verify_file(password, args.infilename)
+        except Exception as e:
+            print(f"Failed to open file {args.infilename} : {e}")
+            sys.exit(-1)
+
+        if not is_ok :
+            print(f"Failed to open file {args.infilename} : bad key ?")
+            sys.exit(-1)
+
+        editor = Extern(password, args.infilename, args.editor)
+        editor.run()
 
     sys.exit(0)        
 

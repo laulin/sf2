@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
  
 setup(name='sf2',
-    version='1.0.0',
-    url='',
+    version='1.1.0',
+    url='https://github.com/laulin/sf2',
     license='Apachev2',
     author='Laurent MOULIN',
     author_email='gignops@gmail.com',

@@ -24,8 +24,10 @@ def get_args():
     action.add_argument('-d', action='store_true', default=False, dest='decrypt', help='Decrypt a file. If -o is not provided, stdout is used')
     action.add_argument('-v', action='store_true', default=False, dest='verify', help='Check if the key is valid on the file')
     action.add_argument('-n', action='store_true', default=False, dest='new', help='Create an empty encrypted file')
-    action.add_argument('--edit', action='store_true', default=False, dest='edit', help='Run the internal editor [not implemented]')
+    action.add_argument('--edit', action='store_true', default=False, dest='edit', help='Run the internal editor')
+    action.add_argument('--external', action='store_true', default=False, dest='external', help='Run an external editor')
 
     parser.add_argument('-i', default=None, dest='infilename', help='Select the encrypt file pass', required=True)
     parser.add_argument('-o', default=None, dest='outfilename', help='Select the encrypt file pass')
+    parser.add_argument('--editor', default="mousepad", dest='editor', help='Select the external editor')
     return parser.parse_args()
