@@ -18,8 +18,7 @@ setup(name='sf2',
       "Operating System :: OS Independent",
       "Development Status :: 5 - Production/Stable",
       "Intended Audience :: Information Technology",
-      "TOPIC :: COMMUNICATIONS :: FILE SHARING",
-      "TOPIC :: SECURITY :: CRYPTOGRAPHY"
+      "Topic :: Security :: Cryptography"
     ],
     python_requires='>=3',
       entry_points={
