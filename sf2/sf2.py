@@ -55,6 +55,26 @@ def main():
         else:
             print("FAILED !")
             sys.exit(-1)
+
+    if args.new:
+        print("We recommand min 12 chars with a-z, A-Z, 0-9 and special symbol")
+        password1 = getpass("Password : ")
+        password2 = getpass("Confirm password : ")
+        if password1 != password2:
+            print("Password are not the same, abord")
+            sys.exit(-1)
+        password = password1
+        cipher = Cipher()
+        try:
+            encrypted = cipher.encrypt(password, "") 
+
+            with open(args.infilename, "w") as f:
+                f.write(encrypted)
+
+        except Exception as e:
+            print(f"Failed to encrypt file {args.infilename} : {e}")
+            sys.exit(-1)
+
     elif args.edit:
         password = getpass()
         cipher = Cipher()
