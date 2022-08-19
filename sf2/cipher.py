@@ -32,11 +32,11 @@ class Cipher:
 
         return key
 
-    def create_salt(self, _rand=os.urandom)->bytes:
+    def create_salt(self, _rand=os.getrandom)->bytes:
         """
         It creates a random 16 byte string, and then encodes it using base64
         
-        :param _rand: This is a function that returns a random byte string. The default is os.urandom,
+        :param _rand: This is a function that returns a random byte string. The default is os.getrandom,
         which is a secure random number generator
         :return: A random string of bytes that is encoded in base64.
         """
