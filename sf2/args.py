@@ -12,6 +12,9 @@ DESCRIPTION = """
 Simple Fernet File
 
 This tool manages an encrypted file with the Fernet algorithm.
+
+By Laulin
+Supported by Spartan Conseil
 """
 
 def get_args():

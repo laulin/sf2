@@ -88,3 +88,7 @@ If you expect to protect a file from a data disclosure in case of hardware theft
 ## Supported system
 
 I currently only work on linux (Debian based distributions). I don't known how it works on other OS.
+
+## Acknowledgement
+
+Thanks to [Spartan Conseil](https://spartan-conseil.fr) for the support !
