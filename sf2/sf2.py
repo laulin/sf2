@@ -3,7 +3,14 @@ import sys
 
 from sf2.args import get_args
 from sf2.cipher import Cipher
-from sf2.editor import Editor
+
+try:
+    from sf2.editor import Editor
+except Exception as e:
+    def Editor(*args, **kwargs):
+        print(f"No editor support ! ({e})")
+        sys.exit(-1)
+
 
 
 def main():
