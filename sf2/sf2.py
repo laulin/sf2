@@ -1,5 +1,6 @@
 from getpass import getpass
 import sys
+import logging
 
 from sf2.args import get_args
 from sf2.cipher import Cipher
@@ -17,6 +18,16 @@ except Exception as e:
 
 def main():
     args = get_args()
+
+    log_levels = {
+        0: logging.CRITICAL,
+        1: logging.ERROR,
+        2: logging.WARN,
+        3: logging.INFO,
+        4: logging.DEBUG,
+    }
+    
+    logging.basicConfig(level=log_levels.get(args.verbosity, logging.DEBUG))
 
     if args.encrypt:
         print("We recommand min 12 chars with a-z, A-Z, 0-9 and special symbol")

@@ -63,7 +63,7 @@ To decrypt a file, run this command :
 
 To check a password on a file, run this command :
 
-`sf2 -v -i your_encrypted_file.x `
+`sf2 --verify -i your_encrypted_file.x `
 
 After entering the password, it will display "OK" or "FAILED !". I think it's pretty clear
 
