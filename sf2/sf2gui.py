@@ -4,12 +4,14 @@ import dearpygui.dearpygui as dpg
 from sf2.encryptgui import EncryptGUI
 from sf2.decryptgui import DecryptGUI
 from sf2.editgui import EditGUI
+from sf2.verifygui import VerifyGUI
 
 class SF2GUI:
     def __init__(self) -> None:
         self._encrypt_app = EncryptGUI(self)
         self._decrypt_app = DecryptGUI(self)
         self._edit_app = EditGUI(self)
+        self._verify_app = VerifyGUI(self)
 
     def create_themes(self):
         # create all themes uses by application
@@ -46,9 +48,8 @@ class SF2GUI:
             dpg.add_menu_item(label="Encrypt", tag="encrypt_menu", callback=self._encrypt_app.create)
             dpg.add_menu_item(label="Decrypt", tag="decrypt_menu", callback=self._decrypt_app.create)
             dpg.add_menu_item(label="Edit", tag="edit_menu", callback=self._edit_app.create)
-            dpg.add_menu_item(label="Verify", callback=print_me)
-            dpg.add_menu_item(label="About", callback=print_me)
-            dpg.add_menu_item(label="Style", callback=dpg.show_style_editor)
+            dpg.add_menu_item(label="Verify", tag="verify_menu", callback=self._verify_app.create)
+            dpg.add_menu_item(label="About", tag="about_menu", callback=print_me)
 
         dpg.setup_dearpygui()
         dpg.show_viewport()
@@ -60,11 +61,15 @@ class SF2GUI:
         dpg.disable_item("encrypt_menu")
         dpg.disable_item("decrypt_menu")
         dpg.disable_item("edit_menu")
+        dpg.disable_item("verify_menu")
+        dpg.disable_item("about_menu")
 
     def enable_menu(self):
         dpg.enable_item("encrypt_menu")
         dpg.enable_item("decrypt_menu")
         dpg.enable_item("edit_menu")
+        dpg.enable_item("verify_menu")
+        dpg.enable_item("about_menu")
 
 
 def main():
