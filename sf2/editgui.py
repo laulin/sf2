@@ -8,6 +8,9 @@ class EditGUI:
         self._parent = parent
         self._cipher = Cipher()
 
+    def set_source_file(self, path:str):
+        dpg.set_value("source_file", path)
+
     def create(self):
         self._parent.disable_menu()
 
