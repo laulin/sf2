@@ -44,6 +44,7 @@ At first you need to install SF2. You have two options :
   * python3 -m build
   * pip3 install build/sf2-*-py3-none-any.whl
 * [Recommanded] pip3 install sf2
+* From the [github releases](https://github.com/laulin/sf2/releases/), download the binary file, copy it to /usr/local/bin and make it executable of all. Currently only for X86/debian based.
 
 ### Encrypt
 
