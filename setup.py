@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
  
 setup(name='sf2',
-    version='1.2.0',
+    version='1.3.0',
     url='https://github.com/laulin/sf2',
     license='Apachev2',
     author='Laurent MOULIN',
@@ -23,7 +23,8 @@ setup(name='sf2',
     python_requires='>=3',
       entry_points={
             'console_scripts': [ 
-            'sf2 = sf2.sf2:main' 
+            'sf2 = sf2.sf2:main', 
+            'sf2gui = sf2.sf2gui:main'
             ] 
       }
 )
