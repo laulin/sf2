@@ -6,7 +6,13 @@ import logging
 from sf2.args import get_args
 from sf2.cipher import Cipher
 from sf2.extern import Extern
-from sf2.sf2gui import SF2GUI
+
+try:
+    from sf2.sf2gui import SF2GUI
+except:
+    def SF2GUI(*args, **kwargs):
+        print("No graphical interface available !")
+        sys.exit(-1)
 
 def main():
     args = get_args()
