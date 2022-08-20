@@ -46,15 +46,22 @@ class SF2GUI:
 
         dpg.create_viewport(title='SF2', width=1024, height=768)
 
-        def print_me(sender, app_data, user_data):
-            print(sender, app_data, user_data)
-
         with dpg.viewport_menu_bar(tag="viewport_menu_bar"):
             dpg.add_menu_item(label="Encrypt", tag="encrypt_menu", callback=self._encrypt_app.create)
             dpg.add_menu_item(label="Decrypt", tag="decrypt_menu", callback=self._decrypt_app.create)
             dpg.add_menu_item(label="Edit", tag="edit_menu", callback=self._edit_app.create)
             dpg.add_menu_item(label="Verify", tag="verify_menu", callback=self._verify_app.create)
-            dpg.add_menu_item(label="About", tag="about_menu", callback=print_me)
+            dpg.add_menu_item(label="About", tag="about_menu", callback=lambda: dpg.show_item("about_window") )
+
+        with dpg.window(label="About SF2", tag="about_window", width=330, height=150, pos=(70, 40), show=True, modal=True):
+            dpg.add_text("Author : Laulin")
+            dpg.add_text("Licence : Apache V2")
+            dpg.add_text("Github : https://github.com/laulin/")
+            dpg.add_text("Libraries : Dearpygui, cryptography, inotify")
+            dpg.add_text("Sponsor : Spartan Conseil", tag="sponsor")
+
+            with dpg.tooltip("sponsor"):
+                dpg.add_text("https://spartan-conseil.fr")
 
         if path:
             self.set_args(path)
