@@ -94,4 +94,4 @@ I currently only work on linux (Debian based distributions). I don't known how i
 
 ## Acknowledgement
 
-Thanks to [Spartan Conseil](https://spartan-conseil.fr) for the support !
+Thanks to [Spartan Conseil](https://spartan-conseil.fr) for the sponsoring !
