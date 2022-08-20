@@ -23,7 +23,7 @@ The encryption use the Fernet algorithm ([specification](https://github.com/fern
 
 * AES 128 with CBC mode (encryption)
 * HMAC-SHA256 (authentication/integrity)
-* IV is created with robust random function (os.urandom)
+* IV is created with robust random function (os.getrandom)
 
 It uses a password (symetric algorithm with preshared key). The key derivation function - the way the password is processed to get a key - is the PBKDF2HMAC algorithm with 16 bytes random salt and 480000 iterations.
 
