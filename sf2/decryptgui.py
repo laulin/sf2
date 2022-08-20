@@ -105,6 +105,8 @@ class DecryptGUI:
             source = os.path.split(source_file)[1]
             destination = os.path.split(destination_file)[1]
             dpg.set_value("help", f"Success ! {source} was decrypted to {destination}")
+            dpg.set_value("password", "")
+            
         except Exception as e:
             dpg.set_value("help", f"Something failed : {e}")
             dpg.bind_item_theme("do_decrypt", "input_error_theme")

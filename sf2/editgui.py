@@ -74,6 +74,7 @@ class EditGUI:
         else:
             dpg.bind_item_theme("password", "input_ok_theme")
 
+        dpg.set_value("password", "")
         # Let's edit it
         editor = Extern(password, source_file, editor)
         editor.run()

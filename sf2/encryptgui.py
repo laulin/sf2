@@ -33,10 +33,9 @@ class EncryptGUI:
             dpg.add_text("", tag="help")
 
         with dpg.file_dialog(directory_selector=False, show=False, callback=self.on_return_source_dial, file_count=1, id="encrypt_source_file_dialog_id", width=400, height=400, modal=True):
-            dpg.add_file_extension(".*")
-            dpg.add_file_extension("", color=(150, 255, 150, 255))
+            dpg.add_file_extension(".*", color=(100, 100, 100, 255))
             dpg.add_file_extension(".md", color=(0, 255, 0, 255), custom_text="[Markdown]")
-            dpg.add_file_extension(".txt", color=(0, 128, 128, 255), custom_text="[Text]")
+            dpg.add_file_extension(".txt", color=(0, 255, 0, 255), custom_text="[Text]")
 
         with dpg.file_dialog(directory_selector=False, show=False, callback=self.on_return_destination_dial, file_count=1, id="encrypt_destination_file_dialog_id", width=400, height=400, modal=True):
             dpg.add_file_extension(".x", color=(0, 255, 0, 255), custom_text="[SF2]")
@@ -106,6 +105,15 @@ class EncryptGUI:
             dpg.bind_item_theme("password", "input_ok_theme")
             dpg.bind_item_theme("confirm", "input_ok_theme")
 
+        if not password:
+            dpg.bind_item_theme("password", "input_error_theme")
+            dpg.bind_item_theme("confirm", "input_ok_theme")
+            dpg.set_value("help", "Password can't be empty")
+            return
+        else:
+            dpg.bind_item_theme("password", "input_ok_theme")
+            dpg.bind_item_theme("confirm", "input_ok_theme")
+
         # Let's do the encryption
         try:
             # if it success, highlight le button with green border
@@ -114,6 +122,8 @@ class EncryptGUI:
             source = os.path.split(source_file)[1]
             destination = os.path.split(destination_file)[1]
             dpg.set_value("help", f"Success ! {source} was encrypted to {destination}")
+            dpg.set_value("password", "")
+            dpg.set_value("confirm", "")
         except Exception as e:
             dpg.set_value("help", f"Something failed : {e}")
             dpg.bind_item_theme("do_encrypt", "input_error_theme")

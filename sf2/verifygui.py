@@ -66,7 +66,7 @@ class VerifyGUI:
             dpg.bind_item_theme("password", "input_error_theme")
             dpg.set_value("help", "Password is not the good one ...")
             return
-        else:
-            dpg.bind_item_theme("password", "input_ok_theme")
 
-        dpg.bind_item_theme("do_verify", "input_succes_theme")
+        dpg.set_value("password", "")
+        dpg.bind_item_theme("do_verify", "input_success_theme")
+        dpg.set_value("help", "Password is OK")
