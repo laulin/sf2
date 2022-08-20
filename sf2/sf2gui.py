@@ -1,5 +1,10 @@
-import os
-import dearpygui.dearpygui as dpg
+import sys
+
+try:
+    import dearpygui.dearpygui as dpg
+except:
+    print("No graphical interface available !")
+    sys.exit(-1)
 
 from sf2.encryptgui import EncryptGUI
 from sf2.decryptgui import DecryptGUI
@@ -33,7 +38,7 @@ class SF2GUI:
                 dpg.add_theme_style(dpg.mvStyleVar_FrameBorderSize, 1, category=dpg.mvThemeCat_Core)
                 dpg.add_theme_color(dpg.mvThemeCol_Border, [0, 255, 0], category=dpg.mvThemeCat_Core)
 
-    def create(self):
+    def create(self, path:str=None):
 
         dpg.create_context()
 
@@ -50,6 +55,9 @@ class SF2GUI:
             dpg.add_menu_item(label="Edit", tag="edit_menu", callback=self._edit_app.create)
             dpg.add_menu_item(label="Verify", tag="verify_menu", callback=self._verify_app.create)
             dpg.add_menu_item(label="About", tag="about_menu", callback=print_me)
+
+        if path:
+            self.set_args(path)
 
         dpg.setup_dearpygui()
         dpg.show_viewport()
@@ -71,10 +79,21 @@ class SF2GUI:
         dpg.enable_item("verify_menu")
         dpg.enable_item("about_menu")
 
+    def set_args(self, path):
+        self._edit_app.create()
+        self._edit_app.set_source_file(path)
+
 
 def main():
+
     gui = SF2GUI()
-    gui.create()
+
+    if len(sys.argv) > 1:
+        gui.create(sys.argv[1])
+    else:
+        gui.create()
+
+    
 
 
 
