@@ -67,23 +67,15 @@ To check a password on a file, run this command :
 
 After entering the password, it will display "OK" or "FAILED !". I think it's pretty clear
 
-### Edit with internal GUI
+### Edit with external GUI
 
-Now you can edit you file with a primitive GUI : 
+LYou can edit your file, but with external editor (nano, vim, mousepad, etc). Default is *mousepad* : 
 
 `sf2 --edit -i your_encrypted_file.x `
 
-This will display a wonderfully simplistic interface, where you can save and copy paste. 
-
-### Edit with external GUI
-
-Like previously, you can edit you file, but with external editor (nano, vim, mousepad, etc). Default is *mousepad* : 
-
-`sf2 --external -i your_encrypted_file.x `
-
 To select another editor (let's say nano) :
 
-`sf2 --external -i your_encrypted_file.x --editor nano`
+`sf2 --edit -i your_encrypted_file.x --editor nano`
 
 ### Create a new encrypted file
 
