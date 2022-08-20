@@ -27,11 +27,16 @@ def get_args():
     action.add_argument('--edit', action='store_true', default=False, dest='edit', help='Run the external editor')
     action.add_argument('--gui', action='store_true', default=False, dest='gui', help='Run the graphical version')
 
-    parser.add_argument('-i', "--in", default=None, dest='infilename', help='Select the encrypt file pass', required=True)
+    parser.add_argument('-i', "--in", default=None, dest='infilename', help='Select the encrypt file pass')
     parser.add_argument('-o', "--out", default=None, dest='outfilename', help='Select the encrypt file pass')
     parser.add_argument('--editor', default="mousepad", dest='editor', help='Select the external editor')
     parser.add_argument("-v", "--verbose", dest="verbosity", action="count", default=0,
                         help="Verbosity (between 1-4 occurrences with more leading to more "
                             "verbose logging). CRITICAL=0, ERROR=1, WARN=2, INFO=3, "
                             "DEBUG=4")
-    return parser.parse_args()
+    args =  parser.parse_args()
+
+    if not args.gui and args.infilename is None:
+        parser.error("-i is expected")
+
+    return args
