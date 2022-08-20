@@ -1,3 +1,4 @@
+from ast import arg
 from getpass import getpass
 import sys
 import logging
@@ -5,6 +6,7 @@ import logging
 from sf2.args import get_args
 from sf2.cipher import Cipher
 from sf2.extern import Extern
+from sf2.sf2gui import SF2GUI
 
 def main():
     args = get_args()
@@ -94,6 +96,11 @@ def main():
 
         editor = Extern(password, args.infilename, args.editor)
         editor.run()
+
+    elif args.gui:
+        gui = SF2GUI()
+        gui.create()
+   
 
     sys.exit(0)        
 

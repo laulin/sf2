@@ -25,6 +25,7 @@ def get_args():
     action.add_argument('--verify', action='store_true', default=False, dest='verify', help='Check if the key is valid on the file')
     action.add_argument('-n', "--new", action='store_true', default=False, dest='new', help='Create an empty encrypted file')
     action.add_argument('--edit', action='store_true', default=False, dest='edit', help='Run the external editor')
+    action.add_argument('--gui', action='store_true', default=False, dest='gui', help='Run the graphical version')
 
     parser.add_argument('-i', "--in", default=None, dest='infilename', help='Select the encrypt file pass', required=True)
     parser.add_argument('-o', "--out", default=None, dest='outfilename', help='Select the encrypt file pass')
