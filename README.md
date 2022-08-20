@@ -70,7 +70,7 @@ After entering the password, it will display "OK" or "FAILED !". I think it's pr
 
 ### Edit with external GUI
 
-LYou can edit your file, but with external editor (nano, vim, mousepad, etc). Default is *mousepad* : 
+You can edit your file, but with external editor (nano, vim, mousepad, etc). Default is *mousepad* : 
 
 `sf2 --edit -i your_encrypted_file.x `
 
