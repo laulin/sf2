@@ -22,8 +22,6 @@ class DecryptGUI:
             with dpg.group(horizontal=True):
                 dpg.add_text("Password")
                 dpg.add_input_text(tag="password", label="", password=True, width=-1)
-                with dpg.tooltip("password"):
-                    dpg.add_text("Recommanded : 12 chars, with a-z, A-Z, 0-9 and special chars")
 
             dpg.add_button(label="Decrypt !", tag="do_decrypt", callback=self.on_decrypt, width=-1)
             dpg.add_text("", tag="help")
