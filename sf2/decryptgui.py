@@ -10,7 +10,7 @@ class DecryptGUI:
     def create(self):
         self._parent.disable_menu()
 
-        with dpg.window(label="Decrypt", tag="decrypt_window", width=500, height=400, pos=(70, 40), show=True, on_close=self.on_close):
+        with dpg.window(label="Decrypt", tag="decrypt_window", width=500, height=146, pos=(70, 40), show=True, on_close=self.on_close):
             with dpg.group(horizontal=True):
                 dpg.add_button(label="Encrypted File", callback=self.on_call_source_dial)
                 dpg.add_input_text(tag="source_file", label="", width=-1)
