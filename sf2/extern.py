@@ -34,7 +34,7 @@ class Extern:
         method on the cipher object.
         :return: The decrypted data.
         """
-        with open(self._filename) as f:
+        with open(self._filename, "rb") as f:
             container = f.read()
         cipher = Cipher()
         return cipher.decrypt(self._password, container)
@@ -49,7 +49,7 @@ class Extern:
         :type path: str
         """
 
-        with open(path) as f:
+        with open(path, "rb") as f:
             plain = f.read()
 
         cipher = Cipher()
@@ -97,7 +97,7 @@ class Extern:
 
         try:
             fd, path = mkstemp(dir=RAMFS, suffix=".plain")
-            with os.fdopen(fd, 'w') as f:
+            with os.fdopen(fd, 'wb') as f:
                 f.write(decrypted)
                 f.flush()
 
@@ -112,6 +112,6 @@ class Extern:
                 self._running = False
             
         except Exception as e:
-            print("Something failed : {e}")
+            print(f"Something failed : {e}")
         finally:
             os.unlink(path)

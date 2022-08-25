@@ -43,7 +43,7 @@ class Cipher:
         salt = _rand(16)
         return base64.urlsafe_b64encode(salt)
 
-    def encrypt(self, password:str, data:str)->dict:
+    def encrypt(self, password:str, data:bytes)->str:
         """
         > It takes a password and some data, creates a salt, creates a key from the salt and password,
         encrypts the data with the key, and returns the salt and encrypted data in a JSON object.
@@ -51,14 +51,14 @@ class Cipher:
         :param password: The password that will be used to encrypt the data
         :type password: str
         :param data: The data to be encrypted
-        :type data: str
+        :type data: bytes
         :return: A JSON string containing the salt and the encrypted data.
         """
         salt = self.create_salt()
         key = self.password_2_key(salt, password)
         
         f = Fernet(key)
-        encrypted = f.encrypt(bytes(data, "utf8"))
+        encrypted = f.encrypt(data)
 
         container = {
             "salt" : str(salt, "utf8"),
@@ -67,17 +67,17 @@ class Cipher:
         return json.dumps(container, indent=4)
 
 
-    def decrypt(self, password:str, container_bytes:bytes)->str:
+    def decrypt(self, password:str, container_data:str)->str:
         """
         > It takes a password and a container, and returns the plaintext
         
         :param password: The password you want to use to encrypt the data
         :type password: str
-        :param container_bytes: the bytes of the container file
-        :type container_bytes: bytes
+        :param container_data: the data container file
+        :type container_data: str
         :return: The decrypted data.
         """
-        container = json.loads(container_bytes)
+        container = json.loads(container_data)
         data = bytes(container["data"], "utf8")
         salt = bytes(container["salt"], "utf8")
 
@@ -85,7 +85,7 @@ class Cipher:
         f = Fernet(key)
         plain = f.decrypt(data)
 
-        return str(plain, "utf8")
+        return plain
 
     def encrypt_file(self, password:str, infilename:str, outfilename:str)->None:
         """
@@ -100,7 +100,7 @@ class Cipher:
         encrypted data will be printed to the console
         :type outfilename: str
         """
-        with open(infilename, "r") as f:
+        with open(infilename, "rb") as f:
             plain = f.read()
 
         container = self.encrypt(password, plain)
@@ -131,7 +131,7 @@ class Cipher:
         if outfilename is None:
             print(plain)
         else:
-            with open(outfilename, "w") as f:
+            with open(outfilename, "wb") as f:
                 f.write(plain)
 
     def verify_file(self, password:str, infilename:str)->bool:
@@ -146,7 +146,7 @@ class Cipher:
         :return: a boolean value.
         """
         
-        with open(infilename, "r") as f:
+        with open(infilename, "rb") as f:
             container = f.read()
         try:
             plain = self.decrypt(password, container)

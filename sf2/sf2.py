@@ -77,7 +77,7 @@ def main():
         password = password1
         cipher = Cipher()
         try:
-            encrypted = cipher.encrypt(password, "") 
+            encrypted = cipher.encrypt(password, b"") 
 
             with open(args.infilename, "w") as f:
                 f.write(encrypted)
