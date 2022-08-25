@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
  
 setup(name='sf2',
-    version='1.3.0',
+    version='1.4.0',
     url='https://github.com/laulin/sf2',
     license='Apachev2',
     author='Laurent MOULIN',
