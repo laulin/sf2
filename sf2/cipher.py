@@ -11,7 +11,7 @@ class Cipher:
     def __init__(self) -> None:
         pass
 
-    def password_2_key(self, salt:bytes, password:str)->bytes:
+    def password_2_key(self, salt:bytes, password:str, iterations:int=480000)->bytes:
         """
         It takes a salt and a password and returns a key for Fernet module
         
