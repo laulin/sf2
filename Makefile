@@ -11,3 +11,6 @@ compile:
 clean:
 	rm -f *.spec
 	rm -rf build/ dist/
+
+tests:
+	python3 -m unittest discover -s test
