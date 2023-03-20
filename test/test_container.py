@@ -8,6 +8,7 @@ from sf2.container import Container
 WORKING_FILE = "/tmp/test.x"
 SECRET = "secret"
 ITERATIONS = 100
+SSH_KEY = "./test/.ssh/id_rsa"
 
 #logging.basicConfig(level=logging.DEBUG)
 
@@ -50,4 +51,32 @@ class TestContainer(unittest.TestCase):
         expected = b"hello"
 
         self.assertEqual(results, expected)
+
+    def test_add_ssh_key(self):
+        c = Container(WORKING_FILE)
+        c.create(SECRET, ITERATIONS)
+        c.add_ssh_key(SECRET, SSH_KEY, ITERATIONS)
+
+    def test_add_double_ssh_key(self):
+        c = Container(WORKING_FILE)
+        c.create(SECRET, ITERATIONS)
+        c.add_ssh_key(SECRET, SSH_KEY, ITERATIONS)
+
+        try:
+            c.add_ssh_key(SECRET, SSH_KEY, ITERATIONS)
+            self.assertTrue(False)
+        except Exception as e:
+            print(e)
+            pass
+
+    def test_create_write_read_ssh_key(self):
+        c = Container(WORKING_FILE)
+        c.create(SECRET, ITERATIONS)
+        c.add_ssh_key(SECRET, SSH_KEY, ITERATIONS)
         
+        c.write_ssh_key(b"hello", SSH_KEY)
+        results = c.read_ssh_key(SSH_KEY)
+
+        expected = b"hello"
+
+        self.assertEqual(results, expected)

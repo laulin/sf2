@@ -3,3 +3,4 @@ dist/*
 sf2.egg-info/*
 build/*
 *.spec
+test/.ssh/*
