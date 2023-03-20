@@ -8,7 +8,8 @@ from sf2.container import Container
 WORKING_FILE = "/tmp/test.x"
 SECRET = "secret"
 ITERATIONS = 100
-SSH_KEY = "./test/.ssh/id_rsa"
+PRIVATE_SSH_KEY = "./test/.ssh/id_rsa"
+PUBLIC_SSH_KEY = "./test/.ssh/id_rsa.pub"
 
 #logging.basicConfig(level=logging.DEBUG)
 
@@ -55,27 +56,27 @@ class TestContainer(unittest.TestCase):
     def test_add_ssh_key(self):
         c = Container(WORKING_FILE)
         c.create(SECRET, ITERATIONS)
-        c.add_ssh_key(SECRET, SSH_KEY, None, ITERATIONS)
+        c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, PRIVATE_SSH_KEY, None, ITERATIONS)
 
     def test_add_double_ssh_key(self):
         c = Container(WORKING_FILE)
         c.create(SECRET, ITERATIONS)
-        c.add_ssh_key(SECRET, SSH_KEY, None, ITERATIONS)
+        c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, PRIVATE_SSH_KEY, None, ITERATIONS)
 
         try:
-            c.add_ssh_key(SECRET, SSH_KEY, None, ITERATIONS)
+            c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, PRIVATE_SSH_KEY, None, ITERATIONS)
             self.assertTrue(False)
         except Exception as e:
             print(e)
             pass
 
-    def test_create_write_read_ssh_key(self):
+    def test_create_write_read_PRIVATE_SSH_KEY(self):
         c = Container(WORKING_FILE)
         c.create(SECRET, ITERATIONS)
-        c.add_ssh_key(SECRET, SSH_KEY, None, ITERATIONS)
+        c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, PRIVATE_SSH_KEY, None, ITERATIONS)
         
-        c.write_ssh_key(b"hello", SSH_KEY)
-        results = c.read_ssh_key(SSH_KEY)
+        c.write_ssh_key(b"hello", PUBLIC_SSH_KEY, PRIVATE_SSH_KEY)
+        results = c.read_ssh_key(PUBLIC_SSH_KEY, PRIVATE_SSH_KEY)
 
         expected = b"hello"
 
