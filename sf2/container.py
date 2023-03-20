@@ -14,6 +14,8 @@ from cryptography.hazmat.primitives.serialization import load_ssh_public_key
 from cryptography.hazmat.primitives.serialization import load_ssh_private_key
 from cryptography.hazmat.primitives.asymmetric import padding
 
+from sf2.cipher import Cipher
+
 
 class Container:
     """
@@ -77,7 +79,7 @@ class Container:
 
         return key
 
-    def create(self, password:str, _iterations:int=None)->None:
+    def create(self, password:str, force:bool=False, _iterations:int=None)->None:
         """
         create an encrypted container.
         
@@ -90,7 +92,7 @@ class Container:
         if _iterations is None:
             _iterations = Container.KDF_ITERATION
 
-        if os.path.exists(self._filename):
+        if not force and os.path.exists(self._filename):
             raise FileExistsError(self._filename)
         
         master_iv = self._create_salt()
@@ -215,7 +217,6 @@ class Container:
 
         file_data, file_hash, public_key, private_key = self.load_ssh_keys(public_ssh_file, private_ssh_file, password_private_ssh_file)
 
-
         encrypted_master_key = public_key.encrypt(
             master_key,
             padding.OAEP(
@@ -305,3 +306,13 @@ class Container:
         self.set_plain_data(container, data, master_data_key)
 
         self.dump(container)
+
+    def convert_v1_to_v2(self, password:str, _iteration:int=None):
+        
+        with open(self._filename, "r") as f:
+            container = f.read()
+
+        data = Cipher().decrypt(password, container)
+
+        self.create(password, True, _iteration)
+        self.write_master_password(data, password, _iteration)
