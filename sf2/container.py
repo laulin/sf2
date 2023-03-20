@@ -143,7 +143,13 @@ class Container:
     
     def load(self)->dict:
         with open(self._filename, "r") as f:
-            return json.load(f)
+            container = json.load(f)
+
+        version = container.get("version", "1")
+        if version != "2":
+            raise Exception(f"Container version {version} not supported")
+        
+        return container
         
     def dump(self, container:dict)->None:
         with open(self._filename, "w") as f:
@@ -191,7 +197,7 @@ class Container:
 
         self.dump(container)
 
-    def load_ssh_keys(self, private_ssh_file:str)->None:
+    def load_ssh_keys(self, private_ssh_file:str, password_private_ssh_file:bytes)->None:
 
         public_ssh_file = private_ssh_file + ".pub"
         with open(public_ssh_file, "rb") as f:
@@ -200,18 +206,18 @@ class Container:
             public_key = load_ssh_public_key(file_data)
 
         with open(private_ssh_file, "rb") as f:
-            private_key = load_ssh_private_key(f.read(), None)
+            private_key = load_ssh_private_key(f.read(), password_private_ssh_file)
 
         return file_data, file_hash, public_key, private_key
 
-    def add_ssh_key(self, password:str, private_ssh_file:str, _iteration:int=None)->None:
+    def add_ssh_key(self, password:str, private_ssh_file:str, password_private_ssh_file:bytes=None, _iteration:int=None)->None:
         container = self.load()
         master_key = self.get_master_key(container, password, _iteration)
 
-        file_data, file_hash, public_key, private_key = self.load_ssh_keys(private_ssh_file)
+        file_data, file_hash, public_key, private_key = self.load_ssh_keys(private_ssh_file, password_private_ssh_file)
 
 
-        alt_key = public_key.encrypt(
+        encrypted_master_key = public_key.encrypt(
             master_key,
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
@@ -221,7 +227,7 @@ class Container:
         )
 
         signature = private_key.sign(
-            alt_key,
+            encrypted_master_key,
             padding.PSS(
                 mgf=padding.MGF1(hashes.SHA256()),
                 salt_length=padding.PSS.MAX_LENGTH
@@ -236,26 +242,26 @@ class Container:
         
         container["auth"]["alt-keys"][file_hash] = {
             "ssh-public" : self.b64encode(file_data),
-            "alt-key" : self.b64encode(alt_key),
+            "encrypted_master_key" : self.b64encode(encrypted_master_key),
             "signature" :  self.b64encode(signature)
         }
 
         self.dump(container)
 
-    def get_master_key_ssh(self, container:dict, private_ssh_file:str):
+    def get_master_key_ssh(self, container:dict, private_ssh_file:str, password_private_ssh_file:bytes):
 
-        _, file_hash, public_key, private_key = self.load_ssh_keys(private_ssh_file)
+        _, file_hash, public_key, private_key = self.load_ssh_keys(private_ssh_file, password_private_ssh_file)
 
         if file_hash not in container["auth"]["alt-keys"]:
             raise Exception("Public key is not registed")
         
         chuck = container["auth"]["alt-keys"][file_hash]
         signature = self.b64decode(chuck["signature"])
-        alt_key = self.b64decode(chuck["alt-key"])
+        encrypted_master_key = self.b64decode(chuck["encrypted_master_key"])
 
         public_key.verify(
             signature,
-            alt_key,
+            encrypted_master_key,
             padding.PSS(
                 mgf=padding.MGF1(hashes.SHA256()),
                 salt_length=padding.PSS.MAX_LENGTH
@@ -264,7 +270,7 @@ class Container:
         )
 
         master_key = private_key.decrypt(
-            alt_key,
+            encrypted_master_key,
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
@@ -274,8 +280,8 @@ class Container:
 
         return master_key
     
-    def get_master_data_key_ssh(self, container:dict, private_ssh_file:str):
-        master_key = self.get_master_key_ssh(container, private_ssh_file)
+    def get_master_data_key_ssh(self, container:dict, private_ssh_file:str, password_private_ssh_file:bytes):
+        master_key = self.get_master_key_ssh(container, private_ssh_file, password_private_ssh_file)
 
         encrypted_master_data_key = self.b64decode(container["auth"]["encrypted_master_data_key"])
         fernet_master_data_key = Fernet(master_key)
@@ -284,19 +290,19 @@ class Container:
         return self.b64encode(master_data_key)
 
 
-    def read_ssh_key(self, private_ssh_file:str)->bytes:
+    def read_ssh_key(self, private_ssh_file:str, password_private_ssh_file:bytes=None)->bytes:
         
         container = self.load()
 
-        master_data_key = self.get_master_data_key_ssh(container, private_ssh_file)
+        master_data_key = self.get_master_data_key_ssh(container, private_ssh_file, password_private_ssh_file)
 
         return self.get_plain_data(container, master_data_key)
     
-    def write_ssh_key(self, data:bytes, private_ssh_file:str)->None:
+    def write_ssh_key(self, data:bytes, private_ssh_file:str, password_private_ssh_file:bytes=None)->None:
 
         container = self.load()
 
-        master_data_key = self.get_master_data_key_ssh(container, private_ssh_file)
+        master_data_key = self.get_master_data_key_ssh(container, private_ssh_file, password_private_ssh_file)
         self.set_plain_data(container, data, master_data_key)
 
         self.dump(container)

@@ -55,15 +55,15 @@ class TestContainer(unittest.TestCase):
     def test_add_ssh_key(self):
         c = Container(WORKING_FILE)
         c.create(SECRET, ITERATIONS)
-        c.add_ssh_key(SECRET, SSH_KEY, ITERATIONS)
+        c.add_ssh_key(SECRET, SSH_KEY, None, ITERATIONS)
 
     def test_add_double_ssh_key(self):
         c = Container(WORKING_FILE)
         c.create(SECRET, ITERATIONS)
-        c.add_ssh_key(SECRET, SSH_KEY, ITERATIONS)
+        c.add_ssh_key(SECRET, SSH_KEY, None, ITERATIONS)
 
         try:
-            c.add_ssh_key(SECRET, SSH_KEY, ITERATIONS)
+            c.add_ssh_key(SECRET, SSH_KEY, None, ITERATIONS)
             self.assertTrue(False)
         except Exception as e:
             print(e)
@@ -72,7 +72,7 @@ class TestContainer(unittest.TestCase):
     def test_create_write_read_ssh_key(self):
         c = Container(WORKING_FILE)
         c.create(SECRET, ITERATIONS)
-        c.add_ssh_key(SECRET, SSH_KEY, ITERATIONS)
+        c.add_ssh_key(SECRET, SSH_KEY, None, ITERATIONS)
         
         c.write_ssh_key(b"hello", SSH_KEY)
         results = c.read_ssh_key(SSH_KEY)
