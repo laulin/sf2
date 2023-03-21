@@ -8,11 +8,14 @@ from hashlib import sha256
 
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.hmac import HMAC
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 from cryptography.hazmat.primitives.serialization import load_ssh_public_key
 from cryptography.hazmat.primitives.serialization import load_ssh_private_key
 from cryptography.hazmat.primitives.asymmetric import padding
+
+from cryptography.exceptions import InvalidSignature
 
 from sf2.cipher import Cipher
 
@@ -23,6 +26,7 @@ class Container:
     """
     SALT_SIZE = 32
     IV_SIZE = 32
+    MASTER_KEY_CHECK_SIZE = 32
     KDF_ITERATION = 48000
     KDF_LENGTH = 32
 
@@ -78,6 +82,30 @@ class Container:
         key = base64.urlsafe_b64encode(kdf.derive(password_bytes))
 
         return key
+    
+    def set_master_key_signature(self, container:dict, master_key:bytes)->None:
+        challenge = secrets.token_bytes(Container.MASTER_KEY_CHECK_SIZE)
+
+        hmac = HMAC(master_key, hashes.SHA256())
+        hmac.update(challenge)
+        signature = hmac.finalize()
+
+        container["auth"]["challenge"] = self.b64encode(challenge)
+        container["auth"]["signature"] = self.b64encode(signature)
+
+    
+    def check_master_key_signature(self, container:dict, master_key:bytes)->None:
+
+        challenge = self.b64decode(container["auth"]["challenge"])
+        signature = self.b64decode(container["auth"]["signature"])
+
+        hmac = HMAC(master_key, hashes.SHA256())
+        hmac.update(challenge)
+        generated_signature = hmac.finalize()
+
+        if signature != generated_signature:
+            raise InvalidSignature("Master key is invalid")
+
 
     def create(self, password:str, force:bool=False, _iterations:int=None)->None:
         """
@@ -115,6 +143,8 @@ class Container:
             },
             "data" : self.b64encode(encrypted_data) 
         }
+
+        self.set_master_key_signature(container, master_key)
         
         with open(self._filename, "w") as f:
             json_container = json.dumps(container)
@@ -165,6 +195,8 @@ class Container:
         master_iv = self.b64decode(container["auth"]["master_iv"])
         master_key = self._kdf(master_iv, password, _iterations)
 
+        self.check_master_key_signature(container, master_key)
+
         return master_key
     
     def get_plain_data(self, container:dict, master_data_key:bytes)->bytes:
@@ -214,7 +246,7 @@ class Container:
     def add_ssh_key(self, password:str, public_ssh_file:str, private_ssh_file:str, password_private_ssh_file:bytes=None, _iteration:int=None)->None:
         container = self.load()
         master_key = self.get_master_key(container, password, _iteration)
-
+        
         file_data, file_hash, public_key, private_key = self.load_ssh_keys(public_ssh_file, private_ssh_file, password_private_ssh_file)
 
         encrypted_master_key = public_key.encrypt(
@@ -277,6 +309,8 @@ class Container:
                 label=None
             )
         )
+
+        self.check_master_key_signature(container, master_key)
 
         return master_key
     
