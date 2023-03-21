@@ -51,4 +51,20 @@ class TestContainer(unittest.TestCase):
         expected = b"hello"
 
         self.assertEqual(results, expected)
+
+    def test_remove_ssh_key_ok(self):
+        c = ContainerSSH(WORKING_FILE)
+        c.create(SECRET, False, _iterations=ITERATIONS)
+        c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, _iterations=ITERATIONS)
+        c.remove_ssh_key("test@test")
+
+    def test_remove_ssh_key_ko(self):
+        c = ContainerSSH(WORKING_FILE)
+        c.create(SECRET, False, _iterations=ITERATIONS)
+        
+        try:
+            c.remove_ssh_key("test@test")
+            self.assertTrue(False)
+        except:
+            pass
         

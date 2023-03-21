@@ -12,7 +12,7 @@ from sf2.container_base import ContainerBase
 
 class ContainerSSH(ContainerBase):
     """
-    Abstract layer on file encryption.
+    Add support of SSH keys.
     """
 
     def __init__(self, filename:str) -> None:
@@ -67,6 +67,21 @@ class ContainerSSH(ContainerBase):
 
         self.dump(container)
 
+    def remove_ssh_key(self, auth_id:str)->None:
+        container = self.load()
+
+        if auth_id in container["auth"]["users"] :
+            if "ssh" in container["auth"]["users"][auth_id]:
+                del container["auth"]["users"][auth_id]["ssh"]
+                if len(container["auth"]["users"][auth_id]) == 0:
+                    del container["auth"]["users"][auth_id]
+
+            else:
+                raise Exception(f"user {auth_id} doesn't use SSH key")
+        else:
+            raise Exception(f"user {auth_id} doesn't exists")
+            
+        self.dump(container)
 
     def get_master_key_ssh(self, container:dict, auth_id:str, private_ssh_file:str, password_private_ssh_file:bytes):
 
