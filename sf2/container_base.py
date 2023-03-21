@@ -17,6 +17,7 @@ from sf2.cipher import Cipher
 class ContainerBase:
     """
     Abstract layer on file encryption.
+    Support only master password.
     """
     SALT_SIZE = 32
     IV_SIZE = 32
