@@ -1,12 +1,9 @@
 import unittest
 import os
 from contextlib import suppress
-import logging 
-
-from cryptography.exceptions import InvalidSignature
 
 from sf2.container_ssh import ContainerSSH
-from sf2.cipher import Cipher
+
 
 WORKING_FILE = "/tmp/test.x"
 SECRET = "secret"
@@ -14,9 +11,8 @@ ITERATIONS = 100
 PRIVATE_SSH_KEY = "./test/.ssh/id_rsa"
 PUBLIC_SSH_KEY = "./test/.ssh/id_rsa.pub"
 
-#logging.basicConfig(level=logging.DEBUG)
 
-class TestContainer(unittest.TestCase):
+class TestContainerSSH(unittest.TestCase):
 
 
     def tearDown(self) -> None:
