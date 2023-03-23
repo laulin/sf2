@@ -46,21 +46,25 @@ Supported by Spartan Conseil
 def get_args(cli_args=None):
     parser = argparse.ArgumentParser(description=DESCRIPTION, formatter_class=RawTextHelpFormatter)
 
-    subparsers = parser.add_subparsers(help='commands')
+    subparsers = parser.add_subparsers(help='commands', dest='commands')
 
     encrypt_parser = subparsers.add_parser('encrypt', help='Encrypt a file')
     secret_source = encrypt_parser.add_mutually_exclusive_group(required=True)
-    secret_source.add_argument('--master-password', action='store_true', dest='encrypt_master_password', help='Use a master password parameters. Will call a prompt.')
-    secret_source.add_argument('--ssh-key', action='store', nargs='?', const='', dest="encrypt_ssh_key", help='Provide path to a public ssh key. If no path is provided, use default SSH key')
-    encrypt_parser.add_argument('-i', "--in", required=True, default=None, dest='encrypt_infilename', help='Select the encrypt file path')
-    encrypt_parser.add_argument('-o', "--out", required=True, default=None, dest='encrypt_outfilename', help='Select the encrypt file path')
+    secret_source.add_argument('--master-password', action='store_true', dest='master_password', help='Use a master password parameters. Will call a prompt.')
+    secret_source.add_argument('--ssh-key', action='store', nargs='?', const='', dest="ssh_key", help='Provide path to a public ssh key. If no path is provided, use default SSH key')
+    encrypt_parser.add_argument('-i', "--in", required=True, default=None, dest='infilename', help='Select the encrypt file path')
+    encrypt_parser.add_argument('-o', "--out", required=True, default=None, dest='outfilename', help='Select the encrypt file path')
 
-    decrypt_parser = subparsers.add_parser('decrypt', help='Decrypt a file')
+    decrypt_parser = subparsers.add_parser('decrypt',  help='Decrypt a file')
     secret_source = decrypt_parser.add_mutually_exclusive_group(required=True)
-    secret_source.add_argument('--master-password', action='store_true', dest='decrypt_master_password', help='Use a master password parameters. Will call a prompt.')
-    secret_source.add_argument('--ssh-key', action='store', nargs='?', const='', dest="decrypt_ssh_key", help='Provide path a secret ssh key. If no path is provided, use default SSH key')
-    decrypt_parser.add_argument('-i', "--in", required=True, default=None, dest='decrypt_infilename', help='Select the decrypt file path')
-    decrypt_parser.add_argument('-o', "--out", required=True, default=None, dest='decrypt_outfilename', help='Select the decrypt file path')
+    secret_source.add_argument('--master-password', action='store_true', dest='master_password', help='Use a master password parameters. Will call a prompt.')
+    secret_source.add_argument('--ssh-key', action='store', nargs='?', const='', dest="ssh_key", help='Provide path a secret ssh key. If no path is provided, use default SSH key')
+    decrypt_parser.add_argument('-i', "--in", required=True, default=None, dest='infilename', help='Select the decrypt file path')
+    decrypt_parser.add_argument('-o', "--out", required=True, default=None, dest='outfilename', help='Select the decrypt file path')
+
+    convert_parser = subparsers.add_parser('convert', help='Convert v1 to v2 file')
+    convert_parser.add_argument('-i', "--in", required=True, default=None, dest='infilename', help='Select the decrypt file path')
+    convert_parser.add_argument('-o', "--out", required=True, default=None, dest='outfilename', help='Select the decrypt file path')
     
 
     args =  parser.parse_args(cli_args)
