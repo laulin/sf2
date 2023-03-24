@@ -8,7 +8,7 @@ from sf2.cipher import Cipher
 from sf2.extern import Extern
 
 try:
-    from sf2.sf2gui import SF2GUI
+    from sf2.gui.sf2gui import SF2GUI
 except:
     def SF2GUI(*args, **kwargs):
         print("No graphical interface available !")

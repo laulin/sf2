@@ -1,4 +1,4 @@
-from sf2.sf2gui import main
+from sf2.gui.sf2gui import main
 
 
 if __name__ == "__main__":

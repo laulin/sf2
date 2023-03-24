@@ -6,10 +6,10 @@ except:
     print("No graphical interface available !")
     sys.exit(-1)
 
-from sf2.encryptgui import EncryptGUI
-from sf2.decryptgui import DecryptGUI
-from sf2.editgui import EditGUI
-from sf2.verifygui import VerifyGUI
+from sf2.gui.encryptgui import EncryptGUI
+from sf2.gui.decryptgui import DecryptGUI
+from sf2.gui.editgui import EditGUI
+from sf2.gui.verifygui import VerifyGUI
 
 class SF2GUI:
     def __init__(self) -> None:
