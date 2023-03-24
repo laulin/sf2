@@ -1,3 +1,5 @@
+import logging
+
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet
@@ -7,17 +9,15 @@ from cryptography.hazmat.primitives.serialization import load_ssh_private_key
 from cryptography.hazmat.primitives.asymmetric import padding
 
 
-from sf2.container_base import ContainerBase
 
-
-class ContainerSSH(ContainerBase):
+class ContainerSSH():
     """
     Add support of SSH keys.
     """
 
-    def __init__(self, filename:str) -> None:
-        super().__init__(filename)
-
+    def __init__(self, base) -> None:
+        self._base = base
+        self._log = logging.getLogger(f"{self.__class__.__name__}")
 
     def load_ssh_public_key(self, public_ssh_file:str)->None:
         """
@@ -70,8 +70,8 @@ class ContainerSSH(ContainerBase):
         specified, the default value is used
         :type _iterations: int
         """
-        container = self.load()
-        master_key = self.get_master_key(container, password, _iterations)
+        container = self._base.load()
+        master_key = self._base.get_master_key(container, password, _iterations)
         
         file_data, user_host, public_key = self.load_ssh_public_key(public_ssh_file)
 
@@ -93,10 +93,10 @@ class ContainerSSH(ContainerBase):
         auth_container = container["auth"]["users"].setdefault(auth_id, {})
         auth_container["ssh"] = {
             "public-key" : file_data,
-            "encrypted_master_key" : self.b64encode(encrypted_master_key),
+            "encrypted_master_key" : encrypted_master_key,
         }
 
-        self.dump(container)
+        self._base.dump(container)
 
     def remove_ssh_key(self, auth_id:str)->None:
         """
@@ -105,7 +105,7 @@ class ContainerSSH(ContainerBase):
         :param auth_id: The user's auth_id
         :type auth_id: str
         """
-        container = self.load()
+        container = self._base.load()
 
         if auth_id in container["auth"]["users"] :
             if "ssh" in container["auth"]["users"][auth_id]:
@@ -118,7 +118,7 @@ class ContainerSSH(ContainerBase):
         else:
             raise Exception(f"user {auth_id} doesn't exists")
             
-        self.dump(container)
+        self._base.dump(container)
 
     def get_master_key_ssh(self, container:dict, auth_id:str, private_ssh_file:str, password_private_ssh_file:bytes):
         """
@@ -141,7 +141,7 @@ class ContainerSSH(ContainerBase):
             raise Exception("Public key is not registed")
         
         chuck = container["auth"]["users"][auth_id]["ssh"]
-        encrypted_master_key = self.b64decode(chuck["encrypted_master_key"])
+        encrypted_master_key = chuck["encrypted_master_key"]
 
         master_key = private_key.decrypt(
             encrypted_master_key,
@@ -152,7 +152,7 @@ class ContainerSSH(ContainerBase):
             )
         )
 
-        self.check_master_key_signature(container, master_key)
+        self._base.check_master_key_signature(container, master_key)
 
         return master_key
     
@@ -173,11 +173,11 @@ class ContainerSSH(ContainerBase):
         """
         master_key = self.get_master_key_ssh(container, auth_id, private_ssh_file, password_private_ssh_file)
 
-        encrypted_master_data_key = self.b64decode(container["auth"]["encrypted_master_data_key"])
+        encrypted_master_data_key = container["auth"]["encrypted_master_data_key"]
         fernet_master_data_key = Fernet(master_key)
         master_data_key = fernet_master_data_key.decrypt(encrypted_master_data_key)
 
-        return self.b64encode(master_data_key)
+        return self._base.b64encode(master_data_key)
 
 
     def read(self, auth_id:str, private_ssh_file:str, password_private_ssh_file:bytes=None)->bytes:
@@ -193,11 +193,11 @@ class ContainerSSH(ContainerBase):
         :return: The plain data.
         """
         
-        container = self.load()
+        container = self._base.load()
 
         master_data_key = self.get_master_data_key_ssh(container, auth_id, private_ssh_file, password_private_ssh_file)
 
-        return self.get_plain_data(container, master_data_key)
+        return self._base.get_plain_data(container, master_data_key)
     
     
     def write(self, data:bytes, auth_id:str, private_ssh_file:str, password_private_ssh_file:bytes=None)->None:
@@ -214,9 +214,9 @@ class ContainerSSH(ContainerBase):
         :type password_private_ssh_file: bytes
         """
 
-        container = self.load()
+        container = self._base.load()
 
         master_data_key = self.get_master_data_key_ssh(container, auth_id, private_ssh_file, password_private_ssh_file)
-        self.set_plain_data(container, data, master_data_key)
+        self._base.set_plain_data(container, data, master_data_key)
 
-        self.dump(container)
+        self._base.dump(container)

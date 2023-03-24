@@ -3,6 +3,8 @@ import os
 from contextlib import suppress
 
 from sf2.container_ssh import ContainerSSH
+from sf2.json_support import JsonSupport
+from sf2.container_base import ContainerBase
 
 
 WORKING_FILE = "/tmp/test.x"
@@ -14,6 +16,10 @@ PUBLIC_SSH_KEY = "./test/.ssh/id_rsa.pub"
 
 class TestContainerSSH(unittest.TestCase):
 
+    def setUp(self) -> None:
+        support = JsonSupport(WORKING_FILE)
+        self.base = ContainerBase(support)
+        self.c = ContainerSSH(self.base)
 
     def tearDown(self) -> None:
         with suppress(FileNotFoundError):
@@ -21,45 +27,45 @@ class TestContainerSSH(unittest.TestCase):
 
    
     def test_add_ssh_key(self):
-        c = ContainerSSH(WORKING_FILE)
-        c.create(SECRET, False, _iterations=ITERATIONS)
-        c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, _iterations=ITERATIONS)
+        
+        self.base.create(SECRET, False, _iterations=ITERATIONS)
+        self.c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, _iterations=ITERATIONS)
 
     def test_add_double_ssh_key(self):
-        c = ContainerSSH(WORKING_FILE)
-        c.create(SECRET, False, _iterations=ITERATIONS)
-        c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, _iterations=ITERATIONS)
+        
+        self.base.create(SECRET, False, _iterations=ITERATIONS)
+        self.c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, _iterations=ITERATIONS)
 
         try:
-            c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, _iterations=ITERATIONS)
+            self.base.add_ssh_key(SECRET, PUBLIC_SSH_KEY, _iterations=ITERATIONS)
             self.assertTrue(False)
         except Exception as e:
             pass
 
     def test_create_write_read_private_ssh_key(self):
-        c = ContainerSSH(WORKING_FILE)
-        c.create(SECRET, False, _iterations=ITERATIONS)
-        c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, _iterations=ITERATIONS)
         
-        c.write(b"hello", "test@test", PRIVATE_SSH_KEY, None)
-        results = c.read("test@test", PRIVATE_SSH_KEY, None)
+        self.base.create(SECRET, False, _iterations=ITERATIONS)
+        self.c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, _iterations=ITERATIONS)
+        
+        self.c.write(b"hello", "test@test", PRIVATE_SSH_KEY, None)
+        results = self.c.read("test@test", PRIVATE_SSH_KEY, None)
 
         expected = b"hello"
 
         self.assertEqual(results, expected)
 
     def test_remove_ssh_key_ok(self):
-        c = ContainerSSH(WORKING_FILE)
-        c.create(SECRET, False, _iterations=ITERATIONS)
-        c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, _iterations=ITERATIONS)
-        c.remove_ssh_key("test@test")
+        
+        self.base.create(SECRET, False, _iterations=ITERATIONS)
+        self.c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, _iterations=ITERATIONS)
+        self.c.remove_ssh_key("test@test")
 
     def test_remove_ssh_key_ko(self):
-        c = ContainerSSH(WORKING_FILE)
-        c.create(SECRET, False, _iterations=ITERATIONS)
+        
+        self.base.create(SECRET, False, _iterations=ITERATIONS)
         
         try:
-            c.remove_ssh_key("test@test")
+            self.c.remove_ssh_key("test@test")
             self.assertTrue(False)
         except:
             pass

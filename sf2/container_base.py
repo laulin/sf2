@@ -1,5 +1,4 @@
-import os.path
-import json
+
 import base64
 import secrets
 import logging
@@ -25,10 +24,10 @@ class ContainerBase:
     KDF_ITERATION = 48000
     KDF_LENGTH = 32
 
-    def __init__(self, filename:str) -> None:
-        self._filename = filename
+    def __init__(self, support) -> None:
+        self._support = support
 
-        self._log = logging.getLogger(f"{self.__class__.__name__}({filename})")
+        self._log = logging.getLogger(f"{self.__class__.__name__}({support.get_info()})")
 
     def b64encode(self, data:bytes)->str:
         """
@@ -57,12 +56,14 @@ class ContainerBase:
         """
         return secrets.token_bytes(ContainerBase.SALT_SIZE)
     
+    
     def _create_iv(self)->bytes:
         """
         It creates a random initialization vector (IV) of 16 bytes.
         :return: A random byte string of length 16.
         """
         return secrets.token_bytes(ContainerBase.IV_SIZE)
+    
 
     def kdf(self, salt:bytes, password:str, iterations:int)->str:
         """
@@ -89,31 +90,7 @@ class ContainerBase:
 
         return key
     
-    def load(self)->dict:
-        """
-        The function loads a JSON file and returns a dictionary. Only work with V2
-        :return: A dictionary
-        """
-        with open(self._filename, "r") as f:
-            container = json.load(f)
-
-        version = container.get("version", "1")
-        if version != "2":
-            raise Exception(f"Container version {version} not supported")
-        
-        return container
-        
-    def dump(self, container:dict)->None:
-        """
-        The function takes a dictionary as an argument and writes it to a file
-        
-        :param container: The container to dump to the file
-        :type container: dict
-        """
-        with open(self._filename, "w") as f:
-            json_container = json.dumps(container, indent=4)
-            f.write(json_container)
-    
+  
     def set_master_key_signature(self, container:dict, master_key:bytes)->None:
         """
         It takes a container and a master key, and adds a challenge and a signature to the container auth section
@@ -129,8 +106,8 @@ class ContainerBase:
         hmac.update(challenge)
         signature = hmac.finalize()
 
-        container["auth"]["challenge"] = self.b64encode(challenge)
-        container["auth"]["signature"] = self.b64encode(signature)
+        container["auth"]["challenge"] = challenge
+        container["auth"]["signature"] = signature
 
     
     def check_master_key_signature(self, container:dict, master_key:bytes)->None:
@@ -143,8 +120,8 @@ class ContainerBase:
         :type master_key: bytes
         """
 
-        challenge = self.b64decode(container["auth"]["challenge"])
-        signature = self.b64decode(container["auth"]["signature"])
+        challenge = container["auth"]["challenge"]
+        signature = container["auth"]["signature"]
 
         hmac = HMAC(master_key, hashes.SHA256())
         hmac.update(challenge)
@@ -171,8 +148,8 @@ class ContainerBase:
         if _iterations is None:
             _iterations = ContainerBase.KDF_ITERATION
 
-        if not force and os.path.exists(self._filename):
-            raise FileExistsError(self._filename)
+        if not force and self._support.is_exist():
+            raise Exception(f"{self._support.get_info()} already exists")
         
         master_iv = self._create_salt()
         master_data_key = self._create_iv()
@@ -188,18 +165,19 @@ class ContainerBase:
         container = {
             "version" : "2",
             "auth" : {
-                "master_iv" : self.b64encode(master_iv),
-                "encrypted_master_data_key" : self.b64encode(encrypted_master_data_key),
+                "master_iv" : master_iv,
+                "encrypted_master_data_key" : encrypted_master_data_key,
                 "users":{}
             },
-            "data" : self.b64encode(encrypted_data) 
+            "data" : encrypted_data
         }
 
         self.set_master_key_signature(container, master_key)
         
-        self.dump(container)
+        self._support.dump(container)
 
-        self._log.info(f"Creation of {self._filename}")
+        self._log.info(f"Creation of {self._support.get_info()}")
+
 
     def get_master_data_key(self, container:dict, password:str, _iterations:int=None)->bytes:
         """
@@ -215,7 +193,7 @@ class ContainerBase:
         :return: The master data key is being returned.
         """
 
-        encrypted_master_data_key = self.b64decode(container["auth"]["encrypted_master_data_key"])
+        encrypted_master_data_key = container["auth"]["encrypted_master_data_key"]
 
         master_key = self.get_master_key(container, password, _iterations)
 
@@ -223,7 +201,8 @@ class ContainerBase:
         master_data_key = fernet_master_data_key.decrypt(encrypted_master_data_key)
 
         return self.b64encode(master_data_key)
-    
+
+
     def get_master_key(self, container:dict, password:str, _iterations:int=None)->bytes:
         """
         It takes a container, a password, and an optional number of iterations, and returns a master
@@ -240,13 +219,14 @@ class ContainerBase:
         if _iterations is None:
             _iterations = ContainerBase.KDF_ITERATION
 
-        master_iv = self.b64decode(container["auth"]["master_iv"])
+        master_iv = container["auth"]["master_iv"]
         master_key = self.kdf(master_iv, password, _iterations)
 
         self.check_master_key_signature(container, master_key)
 
         return master_key
     
+
     def get_plain_data(self, container:dict, master_data_key:bytes)->bytes:
         """
         Decrypts the data in the container using the master key
@@ -257,12 +237,13 @@ class ContainerBase:
         :type master_data_key: bytes
         :return: The data is being returned.
         """
-        encrypted_data = self.b64decode(container["data"])
+        encrypted_data = container["data"]
 
         fernet_data = Fernet(master_data_key)
         data = fernet_data.decrypt(encrypted_data)
 
         return data
+
 
     def set_plain_data(self, container:dict, data:bytes, master_data_key:bytes)->None:
         """
@@ -278,7 +259,8 @@ class ContainerBase:
         fernet_data = Fernet(master_data_key)
         encrypted_data = fernet_data.encrypt(data)
 
-        container["data"] = self.b64encode(encrypted_data)
+        container["data"] = encrypted_data
+
 
     def read(self, password:str, _iterations:int=None)->bytes:
         """
@@ -292,12 +274,13 @@ class ContainerBase:
         :return: The plain data.
         """
         
-        container = self.load()
+        container = self._support.load()
 
         master_data_key = self.get_master_data_key(container, password, _iterations)
 
         return self.get_plain_data(container, master_data_key)
     
+
     def write(self, data:bytes, password:str, _iterations:int=None)->None:
         """
         It takes a password and a data blob, and writes the data blob to the container as encrypted data.
@@ -310,13 +293,14 @@ class ContainerBase:
         :type _iterations: int
         """
 
-        container = self.load()
+        container = self._support.load()
 
         master_data_key = self.get_master_data_key(container, password, _iterations)
 
         self.set_plain_data(container, data, master_data_key)
 
-        self.dump(container)
+        self._support.dump(container)
+
 
     def convert_v1_to_v2(self, password:str, _iterations:int=None):
         """
@@ -336,3 +320,9 @@ class ContainerBase:
 
         self.create(password, True, _iterations)
         self.write(data, password, _iterations)
+
+    def load(self)->dict:
+        return self._support.load()
+    
+    def dump(self, container:dict)->None:
+        self._support.dump(container)

@@ -1,7 +1,7 @@
 import json
 import base64
 import logging
-
+import os.path
 
 
 
@@ -94,3 +94,9 @@ class JsonSupport:
                 return data
         else:
             return data
+        
+    def get_info(self)->str:
+        return self._filename
+    
+    def is_exist(self)->bool:
+        return os.path.exists(self._filename)
