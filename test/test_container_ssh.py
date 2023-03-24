@@ -69,4 +69,13 @@ class TestContainerSSH(unittest.TestCase):
             self.assertTrue(False)
         except:
             pass
+
+    def test_create_write_read_private_ssh_key(self):
+        
+        self.base.create(SECRET, False, _iterations=ITERATIONS)
+        self.c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, _iterations=ITERATIONS)
+        
+        results = self.c.list_ssh_key()
+
+        self.assertTrue("test@test" in results)
         

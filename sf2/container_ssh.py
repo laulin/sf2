@@ -120,6 +120,21 @@ class ContainerSSH():
             
         self._base.dump(container)
 
+    def list_ssh_key(self)->dict:       
+        """
+        This function returns a dictionary of all the users and their public ssh keys
+        """
+        container = self._base.load()
+     
+        output = dict()
+        for user, value in container["auth"]["users"].items():
+            if "ssh" in value:
+                output[user] = value["ssh"]["public-key"]
+            
+        self._base.dump(container)
+
+        return output
+
     def get_master_key_ssh(self, container:dict, auth_id:str, private_ssh_file:str, password_private_ssh_file:bytes):
         """
         The function decrypts the master key using the private key of the user.
