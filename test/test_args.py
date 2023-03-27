@@ -14,23 +14,16 @@ class TestGetArgs(unittest.TestCase):
     # encrypt
 
     def test_encrypt_mk(self):
-        args = get_args(["encrypt", "--master-password", "-i", "in.txt", "-o", "out.x"])
-        results = [args.infilename, args.outfilename, args.master_password]
-        expected = ["in.txt", "out.x", True]
+        args = get_args(["encrypt", "-i", "in.txt", "-o", "out.x"])
+        results = [args.infilename, args.outfilename]
+        expected = ["in.txt", "out.x"]
 
         self.assertEqual(results, expected)
 
-    def test_encrypt_ssh_key_no_file(self):
-        args = get_args(["encrypt", "--ssh-key", "-i", "in.txt", "-o", "out.x"])
-        results = [args.infilename, args.outfilename, args.ssh_key]
-        expected = ["in.txt", "out.x", ""]
-
-        self.assertEqual(results, expected)
-
-    def test_encrypt_ssh_key_with_file(self):
-        args = get_args(["encrypt", "--ssh-key", "/home/foo/.ssh/id_rsa.pub", "-i", "in.txt", "-o", "out.x"])
-        results = [args.infilename, args.outfilename, args.ssh_key]
-        expected = ["in.txt", "out.x", "/home/foo/.ssh/id_rsa.pub"]
+    def test_encrypt_format(self):
+        args = get_args(["encrypt", "--format", "json", "-i", "in.txt", "-o", "out.x"])
+        results = [args.infilename, args.outfilename, args.format]
+        expected = ["in.txt", "out.x", "json"]
 
         self.assertEqual(results, expected)
 
