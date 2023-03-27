@@ -5,6 +5,7 @@ from contextlib import suppress
 from cryptography.exceptions import InvalidSignature
 
 from sf2.json_support import JsonSupport
+from sf2.msgpack_support import MsgpackSupport
 from sf2.container_base import ContainerBase
 
 WORKING_FILE = "/tmp/test.x"
@@ -68,4 +69,16 @@ class TestContainer(unittest.TestCase):
             self.assertTrue(False)
         except InvalidSignature:
             pass
+
+    def test_create_write_read_with_msgpack(self):
+        support = MsgpackSupport(WORKING_FILE)
+        self.c = ContainerBase(support)
+
+        self.c.create(SECRET, False, ITERATIONS)
+        self.c.write(b"hello", SECRET, ITERATIONS)
+        results = self.c.read(SECRET, ITERATIONS)
+
+        expected = b"hello"
+
+        self.assertEqual(results, expected)
         
