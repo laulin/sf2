@@ -54,7 +54,7 @@ def get_args(cli_args=None):
                         help="Verbosity (between 1-4 occurrences with more leading to more "
                             "verbose logging). CRITICAL=0, ERROR=1, WARN=2, INFO=3, "
                             "DEBUG=4")
-    encrypt_parser.add_argument('-i', "--in", required=True, default=None, dest='infilename', help='Select the encrypt file path')
+    encrypt_parser.add_argument('-i', "--in", required=True, default=None, dest='infilename', help='Select the plain file path')
     encrypt_parser.add_argument('-o', "--out", required=True, default=None, dest='outfilename', help='Select the encrypt file path')
     encrypt_parser.add_argument("--format", required=False, default="msgpack", dest='format', choices=["json", "msgpack"], help='Select the file format')
     encrypt_parser.add_argument("-f", "--force", action='store_true', dest='force', help="Force the output overwrite")
@@ -68,8 +68,9 @@ def get_args(cli_args=None):
                         help="Verbosity (between 1-4 occurrences with more leading to more "
                             "verbose logging). CRITICAL=0, ERROR=1, WARN=2, INFO=3, "
                             "DEBUG=4")
+    decrypt_parser.add_argument('-a', "--auth_id", required=False, default=None, dest='auth_id', help='Select the authentication id, need for SSH')
     decrypt_parser.add_argument('-i', "--in", required=True, default=None, dest='infilename', help='Select the decrypt file path')
-    decrypt_parser.add_argument('-o', "--out", required=True, default=None, dest='outfilename', help='Select the decrypt file path')
+    decrypt_parser.add_argument('-o', "--out", required=True, default=None, dest='outfilename', help='Select the plain file path')
     decrypt_parser.add_argument("--format", required=False, default="msgpack", dest='format', choices=["json", "msgpack"], help='Select the file format')
 
     # convert
@@ -91,6 +92,7 @@ def get_args(cli_args=None):
                         help="Verbosity (between 1-4 occurrences with more leading to more "
                             "verbose logging). CRITICAL=0, ERROR=1, WARN=2, INFO=3, "
                             "DEBUG=4")
+    open_parser.add_argument('-a', "--auth_id", required=False, default=None, dest='auth_id', help='Select the authentication id, need for SSH')
     open_parser.add_argument('-p', "--program", required=False, default=None, dest='program', help='Program used to open the plain text file')
     open_parser.add_argument("--format", required=False, default="msgpack", dest='format', choices=["json", "msgpack"], help='Select the file format')
     open_parser.add_argument('infilename', nargs=argparse.REMAINDER)
@@ -100,11 +102,12 @@ def get_args(cli_args=None):
     secret_source = verify_parser.add_mutually_exclusive_group(required=True)
     secret_source.add_argument('--master-password', action='store_true', dest='master_password', help='Use a master password parameters. Will call a prompt.')
     secret_source.add_argument('--ssh-key', action='store', nargs='?', const='', dest="ssh_key", help='Provide path a secret ssh key. If no path is provided, use default SSH key')
-    secret_source.add_argument("--format", required=False, default="msgpack", dest='format', choices=["json", "msgpack"], help='Select the file format')
+    verify_parser.add_argument("--format", required=False, default="msgpack", dest='format', choices=["json", "msgpack"], help='Select the file format')
     verify_parser.add_argument("-v", "--verbose", dest="verbosity", action="count", default=0,
                         help="Verbosity (between 1-4 occurrences with more leading to more "
                             "verbose logging). CRITICAL=0, ERROR=1, WARN=2, INFO=3, "
                             "DEBUG=4")
+    verify_parser.add_argument('-a', "--auth_id", required=False, default=None, dest='auth_id', help='Select the authentication id, need for SSH')
     verify_parser.add_argument('infilename', nargs=argparse.REMAINDER)
 
     # ssh
