@@ -5,8 +5,8 @@ upload:
 	twine upload dist/*
 
 compile:
-	pyinstaller -n sf2-1.4.0-cli -F bin/cli.py -p .
-	pyinstaller -n sf2-1.4.0-gui -F bin/gui.py -p .
+	pyinstaller -n sf2-2.0.0-cli -F bin/cli.py -p .
+	pyinstaller -n sf2-2.0.0-gui -F bin/gui.py -p .
 
 clean:
 	rm -f *.spec
