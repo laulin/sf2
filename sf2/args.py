@@ -113,11 +113,15 @@ def get_args(cli_args=None):
     add_format_and_tail_file(ls_ssh_parser)
 
     # new
-    encrypt_parser = subparsers.add_parser('new', help='Create an empty encrypted container')
-    add_master_password(encrypt_parser)
-    encrypt_parser.add_argument("-f", "--force", action='store_true', dest='force', help="Force the output overwrite")
-    add_log(encrypt_parser)
-    add_format_and_tail_file(encrypt_parser)
+    new_parser = subparsers.add_parser('new', help='Create an empty encrypted container')
+    add_master_password(new_parser)
+    new_parser.add_argument("-f", "--force", action='store_true', dest='force', help="Force the output overwrite")
+    add_log(new_parser)
+    add_format_and_tail_file(new_parser)
+
+    # app
+    app_parser = subparsers.add_parser('app', help='Run gui')
+    add_log(app_parser)
 
     args =  parser.parse_args(cli_args)
 

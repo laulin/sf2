@@ -17,12 +17,8 @@ from sf2.container_base import ContainerBase
 from sf2.json_support import JsonSupport
 from sf2.msgpack_support import MsgpackSupport
 
-try:
-    from sf2.gui.sf2gui import SF2GUI
-except:
-    def SF2GUI(*args, **kwargs):
-        print("No graphical interface available !")
-        sys.exit(-1)
+from sf2.gui.gui import run_app, run_server
+
 
 
 LOG_LEVELS = {
@@ -46,7 +42,8 @@ class SF2:
             "verify": self.verify,
             "open": self.open,
             "ssh": self.ssh,
-            "new": self.new
+            "new": self.new,
+            "app": self.app
         }
 
         try:
@@ -180,6 +177,9 @@ class SF2:
             container = ContainerBase(support)
             container.create(password, self._args.force)
             container.write(b"", password)
+
+    def app(self):
+        run_app()
 
     def get_format(self, filename:str):
         if self._args.format == "json":
