@@ -119,14 +119,14 @@ class TestArgs(unittest.TestCase):
     # # ssh add
     def test_ssh_add_all(self):
         args = get_args(["ssh", "add", "-k", ".ssh/id_rsa.pub", "-a", "foo@bar", "out.x"]) 
-        results = [args.commands, args.ssh_commands, args.public_key, args.auth_id, args.infilenames]
+        results = [args.commands, args.ssh_commands, args.public_key_file, args.auth_id, args.infilenames]
         expected = ['ssh', "add", ".ssh/id_rsa.pub", "foo@bar", ["out.x"]]
 
         self.assertEqual(results, expected)
 
     def test_ssh_add_default(self):
         args = get_args(["ssh", "add", "out.x"]) 
-        results = [args.commands, args.ssh_commands, args.public_key, args.auth_id, args.infilenames]
+        results = [args.commands, args.ssh_commands, args.public_key_file, args.auth_id, args.infilenames]
         expected = ['ssh', "add", None, None, ["out.x"]]
 
         self.assertEqual(results, expected)
