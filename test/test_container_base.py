@@ -8,7 +8,7 @@ from sf2.json_support import JsonSupport
 from sf2.msgpack_support import MsgpackSupport
 from sf2.container_base import ContainerBase
 
-WORKING_FILE = "/tmp/test.x"
+WORKING_FILE = "/tmp/test_container.x"
 SECRET = "secret"
 ITERATIONS = 100
 

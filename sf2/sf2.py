@@ -8,7 +8,9 @@ import socket
 
 from sf2.args import get_args
 from sf2.cipher import Cipher
-from sf2.extern import Extern
+from sf2.openinram import OpenInRAM
+from sf2.file_object import FileObject
+from sf2.ssh_file_object import SSHFileObject
 
 from sf2.container_ssh import ContainerSSH
 from sf2.container_base import ContainerBase
@@ -43,7 +45,8 @@ class SF2:
             "decrypt": self.decrypt,
             "verify": self.verify,
             "open": self.open,
-            "ssh": self.ssh
+            "ssh": self.ssh,
+            "new": self.new
         }
 
         try:
@@ -60,17 +63,9 @@ class SF2:
 
     def encrypt(self):
         base = self.get_format(self._args.outfilename)
-        self.prevent_output_overwrite()
         container = ContainerBase(base)
 
-        if not self._args.master_password_value:
-            print("We recommand min 12 chars with a-z, A-Z, 0-9 and special symbol")
-            password = getpass("Password : ")
-            password_copy = getpass("Confirm password : ")
-            if password != password_copy:
-                raise("Password are not the same, abord")
-        else:
-            password = self._args.master_password_value
+        password = self.get_or_create_master_password()
         
         with open(self._args.infilename, "rb") as f:
             data = f.read()
@@ -80,7 +75,6 @@ class SF2:
 
     def decrypt(self):
         support = self.get_format(self._args.infilename)
-        self.prevent_output_overwrite()
         if self._args.master_password:
             password = self.get_master_password()
             container = ContainerBase(support)
@@ -119,7 +113,22 @@ class SF2:
         sys.exit(output)
 
     def open(self):
-        pass
+        if len(self._args.infilenames) > 1:
+            raise Exception(f"Only one file can be open, not {len(self._args.infilenames)}")
+        
+        filename = self._args.infilenames[0]
+        support = self.get_format(filename)
+
+        if self._args.master_password:
+            password = self.get_master_password()
+            file_object = FileObject(support, password)
+        else:
+            rsa_key_path = self.get_private_key()
+            auth_id = self.get_auth_id()
+            file_object = SSHFileObject(support, auth_id, rsa_key_path, self._args.ssh_key_password)
+
+        open_in_ram = OpenInRAM(file_object, self._args.program)
+        open_in_ram.run()
 
     def ssh(self):
         commands = {
@@ -155,6 +164,15 @@ class SF2:
             for user, pk in container.list_ssh_key().items():
                 print(user, pk)
 
+    def new(self):
+        password = self.get_or_create_master_password()
+
+        for filename in self._args.infilenames:
+            support = self.get_format(filename)
+            container = ContainerBase(support)
+            container.create(password, self._args.force)
+            container.write(b"", password)
+
     def get_format(self, filename:str):
         if self._args.format == "json":
             return JsonSupport(filename)
@@ -178,11 +196,6 @@ class SF2:
                 raise Exception(f"ssh key is not defined and {rsa_path} doesn't exist")
         else:
             return self._args.ssh_key_file
-        
-    def prevent_output_overwrite(self):
-        if self._args.force == False:
-            if os.path.exists(self._args.outfilename):
-                raise Exception(f"Output file {self._args.outfilename} is already existing")
             
     def get_master_password(self)->str:
         try: 
@@ -196,6 +209,18 @@ class SF2:
                 return getpass()
             else:
                 return self._args.master_password_value
+            
+    def get_or_create_master_password(self):
+        if not self._args.master_password_value:
+            print("We recommand min 12 chars with a-z, A-Z, 0-9 and special symbol")
+            password = getpass("Password : ")
+            password_copy = getpass("Confirm password : ")
+            if password != password_copy:
+                raise("Password are not the same, abord")
+        else:
+            password = self._args.master_password_value
+
+        return password
         
     def get_public_key(self):
         if self._args.public_key_file:

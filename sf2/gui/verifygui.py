@@ -1,7 +1,7 @@
 import os
 import dearpygui.dearpygui as dpg
 from sf2.cipher import Cipher
-from sf2.extern import Extern
+from sf2.openinram import Extern
 
 class VerifyGUI:
     def __init__(self, parent:object) -> None:

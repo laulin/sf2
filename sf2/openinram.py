@@ -1,63 +1,36 @@
 from tempfile import mkstemp
 import os
 from threading import Thread
+import logging
+import re
 
 import inotify.adapters
 
-from sf2.cipher import Cipher
-
 RAMFS = "/dev/shm"
 
-class Extern:
-    def __init__(self, password:str, filename:str, editor:str):
+class OpenInRAM:
+    def __init__(self, file_object, command:str):
         """
-        The function __init__() is a constructor that takes three parameters: password, filename, and
-        editor
+        This is a constructor for a class that initializes some instance variables and sets a command
+        string with a filename placeholder.
         
-        :param password: The password you want to use to encrypt the file
-        :type password: str
-        :param filename: The name of the file to be encrypted
-        :type filename: str
-        :param editor: The editor you want to use to edit the file
-        :type editor: str
+        :param file_object: The file object is a reference to a file that will be used by the code. It
+        could be a file that is being read from or written to
+        :param command: The `command` parameter is a string that represents a command to be executed. It
+        may contain the placeholder `{filename}` which will be replaced with the actual filename when
+        the command is executed
+        :type command: str
         """
-        self._password = password
-        self._filename = filename
-        self._editor = editor
-
+        
+        self._file_object = file_object
+        self._log = logging.getLogger(f"{self.__class__.__name__}({file_object})")
         self._running = False
 
-
-    def decrypt(self):
-        """
-        It opens the file, reads the contents, creates a cipher object, and then calls the decrypt
-        method on the cipher object.
-        :return: The decrypted data.
-        """
-        with open(self._filename, "rb") as f:
-            container = f.read()
-        cipher = Cipher()
-        return cipher.decrypt(self._password, container)
-
-
-    def encrypt(self, path:str):
-        """
-        It opens a file, reads the contents, encrypts the contents, and writes the encrypted contents to
-        a file
-        
-        :param path: The path to the file you want to encrypt
-        :type path: str
-        """
-
-        with open(path, "rb") as f:
-            plain = f.read()
-
-        cipher = Cipher()
-        encrypted = cipher.encrypt(self._password, plain)
-
-        with open(self._filename, "w") as f:
-            f.write(encrypted)
-
+        command = command.strip()
+        if re.search(r"\{\s*filename\s*\}", command) is None:
+            self._command = command + " {filename}"
+        else:
+            self._command = command
 
     def write_back(self, watch_path:str):
         """
@@ -84,7 +57,8 @@ class Extern:
 
                 if os.path.join(path, filename) == watch_path:
                     if "IN_CLOSE_WRITE" in type_names:
-                        self.encrypt(watch_path)
+                        self._log.debug(f"Sync plain ({watch_path}) to encrypted")
+                        self._file_object.encrypt(watch_path)
 
 
     def run(self):
@@ -93,10 +67,14 @@ class Extern:
         the editor, encrypts the file and deletes it
         """
 
-        decrypted = self.decrypt()
+        decrypted = self._file_object.decrypt()
+
+        # Remove logs grom inotify
+        logging.getLogger('inotify.adapters').setLevel(logging.WARNING)
 
         try:
             fd, path = mkstemp(dir=RAMFS, suffix=".plain")
+            self._log.debug(f"Create tmp file {path} (fd={fd})")
             with os.fdopen(fd, 'wb') as f:
                 f.write(decrypted)
                 f.flush()
@@ -107,11 +85,12 @@ class Extern:
                 write_back_thread = Thread(target=self.write_back, args=(path,))
                 write_back_thread.start()
 
-                os.system(f"{self._editor} {path}")
+                os.system(self._command.format(filename=path))
                 # stopping the write back thread
                 self._running = False
             
         except Exception as e:
-            print(f"Something failed : {e}")
+            self._log.error(f"Something failed : {e}")
         finally:
+            self._log.debug(f"Tmp file {path} safely remove")
             os.unlink(path)
