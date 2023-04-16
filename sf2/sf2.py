@@ -60,23 +60,26 @@ class SF2:
         self.prevent_output_overwrite()
         container = ContainerBase(base)
 
-        print("We recommand min 12 chars with a-z, A-Z, 0-9 and special symbol")
-        password1 = getpass("Password : ")
-        password2 = getpass("Confirm password : ")
-        if password1 != password2:
-            raise("Password are not the same, abord")
+        if not self._args.master_password_value:
+            print("We recommand min 12 chars with a-z, A-Z, 0-9 and special symbol")
+            password = getpass("Password : ")
+            password_copy = getpass("Confirm password : ")
+            if password != password_copy:
+                raise("Password are not the same, abord")
+        else:
+            password = self._args.master_password_value
         
         with open(self._args.infilename, "rb") as f:
             data = f.read()
 
-        container.create(password1, self._args.force)
-        container.write(data, password1)
+        container.create(password, self._args.force)
+        container.write(data, password)
 
     def decrypt(self):
         support = self.get_format(self._args.infilename)
         self.prevent_output_overwrite()
         if self._args.master_password:
-            password = getpass()
+            password = self.get_master_password()
             container = ContainerBase(support)
 
             data = container.read(password)
@@ -89,7 +92,25 @@ class SF2:
             f.write(data)
 
     def verify(self):
-        pass
+        output = 0
+        password = self.get_master_password()
+
+        for filename in self._args.infilenames:
+            support = self.get_format(filename)
+            try:
+                if self._args.master_password:
+                    container = ContainerBase(support)
+                    container.read(password)
+                else:
+                    container = ContainerSSH(support)
+                    rsa_key_path = self.get_default_rsa_private_key()
+                    container.read(self._args.auth_id, rsa_key_path, self._args.ssh_key_password)
+                print(f"{filename} : OK")
+            except Exception as e:
+                print(f"{filename} : KO ({e})")
+                output = -1
+
+        sys.exit(output)
 
     def open(self):
         pass
@@ -125,6 +146,12 @@ class SF2:
         if self._args.force == False:
             if os.path.exists(self._args.outfilename):
                 raise Exception(f"Output file {self._args.outfilename} is already existing")
+            
+    def get_master_password(self)->str:
+        if not self._args.master_password_value:
+            return getpass()
+        else:
+            return self._args.master_password_value
 
 # def main():
 #     args = get_args()
