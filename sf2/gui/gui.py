@@ -45,7 +45,7 @@ Version 2.0.0,
 By Laulin
 
 __Special thanks to:__
-* [Spartan Conseil](https://spartan-conseil.fr) for gining me time and money, which allows me to give you a free software
+* [Spartan Conseil](https://spartan-conseil.fr) for giving me time and money, which allows me to give you a free software
 
 __Thanks to:__
 * [Cryptography](https://cryptography.io/en/latest/)
