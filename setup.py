@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(name='sf2',
     version='2.0.0',
     url='https://github.com/laulin/sf2',
-    license='Apachev2',
+    license='MIT',
     author='Laurent MOULIN',
     author_email='gignops@gmail.com',
     description='Encrypt and decrypt your file with Fernet algorithm',
