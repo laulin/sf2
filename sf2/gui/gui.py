@@ -27,6 +27,33 @@ RED = '#ff2121'
 ORANGE = '#ff8821'
 BLUE = '#2188ff'
 
+FOOTER_REMOVER = """
+// remove the footer
+document.addEventListener('DOMContentLoaded', () => {
+// Sélectionnez l'élément footer en utilisant la balise, l'ID ou la classe
+const footerElement = document.querySelector('footer');
+
+// Masquez l'élément footer en modifiant le style CSS s'il existe
+if (footerElement) {
+    footerElement.style.display = 'none';
+}
+});
+"""
+
+ABOUT = """# SF2
+Version 2.0.0,
+By Laulin
+
+__Special thanks to:__
+* [Spartan Conseil](https://spartan-conseil.fr) for gining me time and money, which allows me to give you a free software
+
+__Thanks to:__
+* [Cryptography](https://cryptography.io/en/latest/)
+* [PyWebIO](https://www.pyweb.io/) (Thank you for making GUI so easy !!!)
+* [Webview](https://pywebview.flowrl.com/)
+* [Msgpack](https://msgpack.org/) (what a greatful format)
+* [Inotify](https://pypi.org/project/inotify/)"""
+
 def get_format(support_format:str, filename:str):
     if support_format == "json":
         return JsonSupport(filename)
@@ -82,6 +109,11 @@ def new():
         output.put_button("Create", onclick=do_new),
     ])
 
+def about():
+    return output.put_column([
+        output.put_markdown(ABOUT)
+    ])
+
 def root():
     output.put_text(HEADER)
     output.put_tabs([
@@ -97,10 +129,10 @@ def root():
          
         },
         {'title': 'convert', 'content': 'Hello world'},
-        {'title': 'About', 'content': 'Hello world'}
+        {'title': 'About', 'content': about()}
     ])
 
-@config(theme="dark")
+@config(theme="dark", js_code=FOOTER_REMOVER)
 def main():
     root()
     
