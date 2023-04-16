@@ -30,7 +30,7 @@ class ContainerSSH():
         """
 
         with open(public_ssh_file, "r") as f:
-            file_data = f.read()
+            file_data = f.read().strip()
             public_key = load_ssh_public_key(bytes(file_data, "utf8"))
 
         user_host = file_data.split(" ")[2].strip()
@@ -152,8 +152,11 @@ class ContainerSSH():
 
         private_key = self.load_ssh_private_key(private_ssh_file, password_private_ssh_file)
 
-        if auth_id not in container["auth"]["users"] and "ssh" in container["auth"]["users"][auth_id]:
-            raise Exception("Public key is not registed")
+        if auth_id not in container["auth"]["users"]:
+            raise Exception(f"Auth_id {auth_id} is invalid")
+        
+        if "ssh" not in container["auth"]["users"][auth_id]:
+            raise Exception(f"Not public key register for {auth_id}")
         
         chuck = container["auth"]["users"][auth_id]["ssh"]
         encrypted_master_key = chuck["encrypted_master_key"]
