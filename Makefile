@@ -14,3 +14,6 @@ clean:
 
 tests:
 	python3 -m unittest discover -s test
+
+integration:
+	python3 -m unittest discover -s test -p int_*.py
