@@ -1,6 +1,5 @@
 import argparse
 from argparse import RawTextHelpFormatter
-import pprint
 
 DESCRIPTION = """
 
@@ -98,7 +97,7 @@ def get_args(cli_args=None):
     # ssh add
     add_ssh_parser = ssh_subparser.add_parser('add',  help='Add an ssh key to a container, need the master password')
     add_log(add_ssh_parser)
-    add_ssh_parser.add_argument("-k", '--public', required=False, default=None, dest='public_key', help='Select the public key. Default is ~/{curent_user}/.ssh/id_rsa.pub')
+    add_ssh_parser.add_argument("-k", '--public', required=False, default=None, dest='public_key_file', help='Select the public key. Default is ~/{curent_user}/.ssh/id_rsa.pub')
     add_ssh_parser.add_argument("-a", '--auth-id', required=False, default=None, dest='auth_id', help='Define the authentification id, default is the one in the public key')
     add_master_password(add_ssh_parser)
     add_format_and_tail_file(add_ssh_parser)
