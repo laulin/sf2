@@ -19,9 +19,9 @@ Supported by Spartan Conseil
 
 
 def create_exclusive_secret(subparser):
-    secret_choice = subparser.add_mutually_exclusive_group(required=True)
+    secret_choice = subparser.add_mutually_exclusive_group(required=False)
     secret_choice.add_argument('--master-password', action='store_true', default=False, dest='master_password', help='Use a master password parameters. Will call a prompt.')
-    secret_choice.add_argument('--ssh-key', action='store_true', default=False, dest="ssh_key", help='Provide path a secret ssh key. If no path is provided, use default SSH key')
+    secret_choice.add_argument('--ssh-key', action='store_true', default=True, dest="ssh_key", help='Provide path a secret ssh key. If no path is provided, use default SSH key. This is the default behaviour')
 
     subparser.add_argument('-a', "--auth_id", required=False, dest='auth_id', help='Select the authentication id, need for SSH')
     subparser.add_argument('-K', action='store', required=False, dest="ssh_key_password", help='Provide the password to unlock the private key')
@@ -82,6 +82,7 @@ def get_args(cli_args=None):
     open_parser = subparsers.add_parser('open', help='Open an encrypted file with external software')
     create_exclusive_secret(open_parser)
     add_log(open_parser)
+    open_parser.add_argument('-c', "--config", required=False, default=None, dest='config_file', help='Define the configuration path. Default is /home/[dude]/.sf2/config')
     add_program(open_parser)
     add_format_and_tail_file(open_parser)
 

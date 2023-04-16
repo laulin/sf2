@@ -7,10 +7,10 @@ import re
 import socket
 
 from sf2.args import get_args
-from sf2.cipher import Cipher
 from sf2.openinram import OpenInRAM
 from sf2.file_object import FileObject
 from sf2.ssh_file_object import SSHFileObject
+from sf2.configuration import Configuration
 
 from sf2.container_ssh import ContainerSSH
 from sf2.container_base import ContainerBase
@@ -115,16 +115,24 @@ class SF2:
     def open(self):
         if len(self._args.infilenames) > 1:
             raise Exception(f"Only one file can be open, not {len(self._args.infilenames)}")
+        filename = os.path.abspath(self._args.infilenames[0])
         
-        filename = self._args.infilenames[0]
+        default_config_path = os.path.join(Path.home(), ".sf2/config")
+        if self._args.config_file is None:
+            config = Configuration(default_config_path)
+        else:
+            config = Configuration(self._args.config_file)
+
+        file_config = config.get_file_attribute(filename)
+        print(filename)        
         support = self.get_format(filename)
 
         if self._args.master_password:
             password = self.get_master_password()
             file_object = FileObject(support, password)
         else:
-            rsa_key_path = self.get_private_key()
-            auth_id = self.get_auth_id()
+            rsa_key_path = self.get_private_key(file_config.get("private_key"))
+            auth_id = file_config.get("auth_id", self.get_auth_id())
             file_object = SSHFileObject(support, auth_id, rsa_key_path, self._args.ssh_key_password)
 
         open_in_ram = OpenInRAM(file_object, self._args.program)
@@ -187,8 +195,13 @@ class SF2:
     def get_default_rsa_private_key(self)->str:
         return os.path.join(self.get_home(), ".ssh", "id_rsa")
         
-    def get_private_key(self):
-        if self._args.ssh_key_file is None:
+    def get_private_key(self, from_config:str=None):
+        if from_config is not None:
+            if not os.path.exists(from_config):
+                raise Exception(f"ssh key {from_config} defined in configuration doesn't exist")
+            return from_config
+        
+        elif self._args.ssh_key_file is None:
             rsa_path = self.get_default_rsa_private_key()
             if os.path.exists(rsa_path):
                 return rsa_path
@@ -244,96 +257,6 @@ class SF2:
             return re_result.group(1)
         
         return f"{getuser()}@{socket.gethostname()}"
-
-# def main():
-#     args = get_args()
-
-
-#     if args.encrypt:
-#         print("We recommand min 12 chars with a-z, A-Z, 0-9 and special symbol")
-#         password1 = getpass("Password : ")
-#         password2 = getpass("Confirm password : ")
-#         if password1 != password2:
-#             print("Password are not the same, abord")
-#             sys.exit(-1)
-#         password = password1
-#         cipher = Cipher()
-#         try:
-#             cipher.encrypt_file(password, args.infilename, args.outfilename)
-#         except Exception as e:
-#             print(f"Failed to encrypt file {args.infilename} : {e}")
-#             sys.exit(-1)
-
-#     elif args.decrypt:
-#         password = getpass()
-#         cipher = Cipher()
-#         try:
-#             cipher.decrypt_file(password, args.infilename, args.outfilename)
-#         except Exception as e:
-#             print(f"Failed to decrypt file {args.infilename} : {e}")
-#             sys.exit(-1)
-
-#     elif args.verify:
-#         password = getpass()
-#         cipher = Cipher()
-        
-#         try:
-#             is_ok = cipher.verify_file(password, args.infilename)
-#         except Exception as e:
-#             print(f"Failed to verify file {args.infilename} : {e}")
-#             sys.exit(-1)
-
-#         if is_ok :
-#             print("OK")
-#         else:
-#             print("FAILED !")
-#             sys.exit(-1)
-
-#     if args.new:
-#         print("We recommand min 12 chars with a-z, A-Z, 0-9 and special symbol")
-#         password1 = getpass("Password : ")
-#         password2 = getpass("Confirm password : ")
-#         if password1 != password2:
-#             print("Password are not the same, abord")
-#             sys.exit(-1)
-#         password = password1
-#         cipher = Cipher()
-#         try:
-#             encrypted = cipher.encrypt(password, b"") 
-
-#             with open(args.infilename, "w") as f:
-#                 f.write(encrypted)
-
-#         except Exception as e:
-#             print(f"Failed to encrypt file {args.infilename} : {e}")
-#             sys.exit(-1)
-
-#     elif args.edit:
-#         password = getpass()
-#         cipher = Cipher()
-
-#         try:
-#             is_ok = cipher.verify_file(password, args.infilename)
-#         except Exception as e:
-#             print(f"Failed to open file {args.infilename} : {e}")
-#             sys.exit(-1)
-
-#         if not is_ok :
-#             print(f"Failed to open file {args.infilename} : bad key ?")
-#             sys.exit(-1)
-
-#         editor = Extern(password, args.infilename, args.editor)
-#         editor.run()
-
-#     elif args.gui:
-#         gui = SF2GUI()
-#         gui.create()
-   
-
-#     sys.exit(0)        
-
-# if __name__ == "__main__":
-#     main()
 
 if __name__ == "__main__":
     sf2 = SF2()
