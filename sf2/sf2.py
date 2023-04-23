@@ -10,7 +10,8 @@ from sf2.args import get_args
 from sf2.openinram import OpenInRAM
 from sf2.file_object import FileObject
 from sf2.ssh_file_object import SSHFileObject
-from sf2.configuration import Configuration
+from sf2.environment import Environment
+from sf2.core import Core
 
 from sf2.container_ssh import ContainerSSH
 from sf2.container_base import ContainerBase
@@ -30,9 +31,9 @@ LOG_LEVELS = {
 }
 
 class SF2:
-    def __init__(self, args=None) -> None:
+    def __init__(self, args=None, _iterations:int=None) -> None:
         self._args = get_args(args)
-
+        self._core = Core(_iterations)
         self._log = logging.getLogger(self.__class__.__name__)
 
     def main(self):
@@ -59,53 +60,37 @@ class SF2:
         #     self._log.critical(str(e))
 
     def encrypt(self):
-        base = self.get_format(self._args.outfilename)
-        container = ContainerBase(base)
-
         password = self.get_or_create_master_password()
-        
-        with open(self._args.infilename, "rb") as f:
-            data = f.read()
-
-        container.create(password, self._args.force)
-        container.write(data, password)
+        self._core.encrypt(self._args.infilename, self._args.outfilename, password, self._args.format)
 
     def decrypt(self):
-        support = self.get_format(self._args.infilename)
         if self._args.master_password:
             password = self.get_master_password()
-            container = ContainerBase(support)
-
-            data = container.read(password)
+            self._core.decrypt(self._args.infilename, self._args.outfilename, password, self._args.format)
         else:
-            base = ContainerBase(support)
-            container = ContainerSSH(base)
-            rsa_key_path = self.get_private_key()
+            private_key_file = self.get_private_key()
             auth_id = self.get_auth_id()
-            data = container.read(auth_id, rsa_key_path, self._args.ssh_key_password)
-
-        with open(self._args.outfilename, "wb") as f:
-            f.write(data)
+            self._core.decrypt_ssh(self._args.infilename, self._args.outfilename, private_key_file, self._args.ssh_key_password, auth_id, self._args.format)
 
     def verify(self):
         output = 0
         password = self.get_master_password()
         for filename in self._args.infilenames:
-            support = self.get_format(filename)
-            try:
-                if self._args.master_password:
-                    container = ContainerBase(support)
-                    container.read(password)
-                else:
-                    base = ContainerBase(support)
-                    container = ContainerSSH(base)
-                    rsa_key_path = self.get_private_key()
-                    auth_id = self.get_auth_id()
-                    container.read(auth_id, rsa_key_path, self._args.ssh_key_password)
+
+            if self._args.master_password:
+                status = self._core.verify(filename, password, self._args.format)
+                   
+            else:
+                private_key_file = self.get_private_key()
+                auth_id = self.get_auth_id()
+                status = self._core.verify_ssh(filename, private_key_file, self._args.ssh_key_password, auth_id, self._args.format)
+            
+            if status :
                 print(f"{filename} : OK")
-            except Exception as e:
-                print(f"{filename} : KO ({e})")
+            else:
+                print(f"{filename} : KO")
                 output = -1
+
 
         sys.exit(output)
 
