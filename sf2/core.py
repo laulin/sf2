@@ -114,7 +114,10 @@ class Core:
 
         return output
 
-    def new(self, filename:str, password:str, force:bool=False, support_format:str="msgpack" ):
+    def new(self, filename:str, password:str, force:bool=False, support_format:str="msgpack"):
+        if not force and os.path.exists(filename):
+            raise Exception(f"file {filename} already exist")
+        
         support = self.get_support(filename, support_format)
         container = ContainerBase(support)
         container.create(password, force)
