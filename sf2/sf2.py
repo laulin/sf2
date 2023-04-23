@@ -98,27 +98,16 @@ class SF2:
         if len(self._args.infilenames) > 1:
             raise Exception(f"Only one file can be open, not {len(self._args.infilenames)}")
         filename = os.path.abspath(self._args.infilenames[0])
-        
-        default_config_path = os.path.join(Path.home(), ".sf2/config")
-        if self._args.config_file is None:
-            config = Configuration(default_config_path)
-        else:
-            config = Configuration(self._args.config_file)
-
-        file_config = config.get_file_attribute(filename)
-    
-        support = self.get_format(filename)
+           
 
         if self._args.master_password:
             password = self.get_master_password()
-            file_object = FileObject(support, password)
+            self._core.open(filename, self._args.program, password, self._args.format)
         else:
-            rsa_key_path = self.get_private_key(file_config.get("private_key"))
-            auth_id = file_config.get("auth_id", self.get_auth_id())
-            file_object = SSHFileObject(support, auth_id, rsa_key_path, self._args.ssh_key_password)
+            private_key_file = self.get_private_key()
+            auth_id = self.get_auth_id()
+            self._core.open_ssh(filename, self._args.program, private_key_file, self._args.ssh_key_password, auth_id, self._args.format)
 
-        open_in_ram = OpenInRAM(file_object, self._args.program)
-        open_in_ram.run()
 
     def ssh(self):
         commands = {
