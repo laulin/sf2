@@ -121,7 +121,7 @@ class SF2:
             config = Configuration(self._args.config_file)
 
         file_config = config.get_file_attribute(filename)
-        print(filename)        
+    
         support = self.get_format(filename)
 
         if self._args.master_password:
