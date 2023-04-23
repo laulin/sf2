@@ -1,16 +1,10 @@
-from getpass import getpass,getuser
-import sys
 import logging
 import os.path
-from pathlib import Path
 import re
-import socket
 
-from sf2.args import get_args
 from sf2.openinram import OpenInRAM
 from sf2.file_object import FileObject
 from sf2.ssh_file_object import SSHFileObject
-from sf2.configuration import Configuration
 
 from sf2.container_ssh import ContainerSSH
 from sf2.container_base import ContainerBase
@@ -20,11 +14,7 @@ from sf2.msgpack_support import MsgpackSupport
 
 
 class Core:
-    def __init__(self, configuration_file:str=None, _iterations:int=None) -> None:
-        if configuration_file is None:
-            configuration_file = os.path.join(self.get_home(), ".sf2", "config")
-
-        self._configuration = Configuration(configuration_file)
+    def __init__(self, _iterations:int=None) -> None:
         self._iterations = _iterations
         self._log = logging.getLogger(self.__class__.__name__)
 
@@ -57,7 +47,6 @@ class Core:
             f.write(data)
 
     def verify(self, filename:str, password:str=None, support_format:str="msgpack")->bool:
-        password = self.get_master_password(password)
         support = self.get_support(filename, support_format)
         try:
             container = ContainerBase(support)
@@ -82,8 +71,7 @@ class Core:
     def open(self, filename:str, program:str, password:str=None, support_format:str="msgpack"):
         support = self.get_support(filename, support_format)
 
-        master_password = self.get_master_password(password)
-        file_object = FileObject(support, master_password, self._iterations)
+        file_object = FileObject(support, password, self._iterations)
 
         open_in_ram = OpenInRAM(file_object, program)
         open_in_ram.run()
@@ -97,8 +85,6 @@ class Core:
         open_in_ram.run()
 
     def ssh_add(self, filename:str, password:str, public_key_file:str=None, auth_id:str=None, support_format:str="msgpack"):
-        password = self.get_master_password(password)
-        public_key_file = self.get_public_key(public_key_file)
         auth_id = self.get_auth_id(auth_id, public_key_file)
 
         support = self.get_support(filename, support_format)
@@ -135,55 +121,12 @@ class Core:
         else:
             raise Exception(f"Format {support_format} is not supported")
         
-    def get_home(self)->str:
-        return str(Path.home())
-    
-    def get_default_rsa_private_key(self)->str:
-        return os.path.join(self.get_home(), ".ssh", "id_rsa")
-        
     def get_private_key(self, filename:str, private_key_file:str):
         if private_key_file is not None:
             if not os.path.exists(private_key_file):
                 raise Exception(f"ssh key {private_key_file} defined in configuration doesn't exist")
             return private_key_file
-        
-        if self._configuration.get_file_attribute(filename).get("private_key") is None:
-            rsa_path = self.get_default_rsa_private_key()
-            if os.path.exists(rsa_path):
-                return rsa_path
-            else:
-                raise Exception(f"ssh key is not defined and {rsa_path} doesn't exist")
-        else:
-            return self._args.ssh_key_file
-            
-    def get_master_password(self, password:str)->str:
-        if password :
-            return password
-        else:
-            return getpass("Master password : ")
-
-            
-    def get_or_create_master_password(self):
-        if not self._args.master_password_value:
-            print("We recommand min 12 chars with a-z, A-Z, 0-9 and special symbol")
-            password = getpass("Password : ")
-            password_copy = getpass("Confirm password : ")
-            if password != password_copy:
-                raise("Password are not the same, abord")
-        else:
-            password = self._args.master_password_value
-
-        return password
-        
-    def get_public_key(self,  public_key_file:str):
-        if public_key_file:
-            return public_key_file
-        
-        if os.path.exists(f"/home/{getuser()}/.ssh/id_rsa.pub"):
-            return f"/home/{getuser()}/.ssh/id_rsa.pub"
-        
-        raise Exception(f"Public key file is not provided and default one is not available (/home/{getuser()}/.ssh/id_rsa.pub)")
-    
+              
     def get_auth_id(self, auth_id:str=None, public_key_file:str=None)->str:
         if auth_id:
             return auth_id
@@ -196,4 +139,4 @@ class Core:
             re_result = re.search(r"ssh-rsa AAAA[0-9A-Za-z+/]+[=]{0,3} ([^@]+@[^@\r\n]+)", key)
             return re_result.group(1)
         
-        return f"{getuser()}@{socket.gethostname()}"
+        raise Exception("No auth_id defined nor availaible in public key")
