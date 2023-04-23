@@ -28,15 +28,22 @@ class Core:
         container.create(password, force, self._iterations)
         container.write(data, password, self._iterations)
 
-    def decrypt(self, infilename:str, outfilename:str, password:str, support_format:str="msgpack"):
+    def decrypt(self, infilename:str, outfilename:str, password:str, support_format:str="msgpack", force:bool=False):
+        if not force and os.path.exists(outfilename):
+            raise Exception(f"file {outfilename} already exist")
+        
         support = self.get_support(infilename, support_format)
         container = ContainerBase(support)
         data = container.read(password,self._iterations)
 
+
         with open(outfilename, "wb") as f:
             f.write(data)
 
-    def decrypt_ssh(self, infilename:str, outfilename:str, private_key_file:str=None, private_key_password:str=None, auth_id:str=None, support_format:str="msgpack"):
+    def decrypt_ssh(self, infilename:str, outfilename:str, private_key_file:str=None, private_key_password:str=None, auth_id:str=None, support_format:str="msgpack", force:bool=False):
+        if not force and os.path.exists(outfilename):
+            raise Exception(f"file {outfilename} already exist")
+        
         support = self.get_support(infilename, support_format)
         base = ContainerBase(support)
         container = ContainerSSH(base)
@@ -107,8 +114,8 @@ class Core:
 
         return output
 
-    def new(self, filename:str, password:str, force:bool=False):
-        support = self.get_support(filename)
+    def new(self, filename:str, password:str, force:bool=False, support_format:str="msgpack" ):
+        support = self.get_support(filename, support_format)
         container = ContainerBase(support)
         container.create(password, force)
         container.write(b"", password)

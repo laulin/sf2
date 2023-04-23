@@ -30,6 +30,11 @@ class TestCore(unittest.TestCase):
         core = Core(_iterations=100)
         core.encrypt(SOURCE, ENCRYPTED, PASSWORD)
 
+    def test_new(self):
+
+        core = Core(_iterations=100)
+        core.new(ENCRYPTED, PASSWORD)
+
     def test_encrypt_and_decrypt(self):
 
         core = Core(_iterations=100)
