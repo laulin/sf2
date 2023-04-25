@@ -80,6 +80,7 @@ def get_args(cli_args=None):
     convert_parser = subparsers.add_parser('convert', help='Convert v1 to v2 file')
     add_log(convert_parser)
     add_io(convert_parser)
+    add_master_password(convert_parser)
     add_format(convert_parser)
 
     # open

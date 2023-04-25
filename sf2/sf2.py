@@ -5,6 +5,7 @@ import os.path
 
 from sf2.args import get_args
 from sf2.core_with_environment import CoreWithEnvironment
+from sf2.convert_container import convert_container
 
 from sf2.gui.gui import run_app
 
@@ -30,6 +31,7 @@ class SF2:
             "decrypt": self.decrypt,
             "verify": self.verify,
             "open": self.open,
+            "convert": self.convert,
             "ssh": self.ssh,
             "new": self.new,
             "app": self.app
@@ -41,10 +43,11 @@ class SF2:
             print("Usage --help for information")
             return
 
-        try:
-            commands[self._args.commands]()
-        except Exception as e:
-            self._log.critical(str(e))
+        commands[self._args.commands]()
+        # try:
+        #     commands[self._args.commands]()
+        # except Exception as e:
+        #     self._log.critical(str(e))
 
     def encrypt(self):
         password = self.get_or_create_master_password()
@@ -58,6 +61,9 @@ class SF2:
             self._core.decrypt_ssh(self._args.infilename, self._args.outfilename, self._args.private_key_file, 
                                    self._args.private_key_password, self._args.auth_id, self._args.format,
                                    self._args.force, self._args.config_file)
+    def convert(self):
+        password = self.get_master_password()
+        convert_container(self._args.infilename, self._args.outfilename, password, self._args.format, self._args.force)
 
     def verify(self):
         output = 0
@@ -83,6 +89,8 @@ class SF2:
     def open(self):
         if len(self._args.infilenames) > 1:
             raise Exception(f"Only one file can be open, not {len(self._args.infilenames)}")
+        if len(self._args.infilenames) == 0:
+            raise Exception(f"One file must be provided")
         filename = os.path.abspath(self._args.infilenames[0])
            
 
