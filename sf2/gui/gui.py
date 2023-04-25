@@ -9,6 +9,7 @@ from sf2.gui.new import New
 from sf2.gui.about import About
 from sf2.gui.encrypt import Encrypt
 from sf2.gui.decrypt import Decrypt
+from sf2.gui.ssh import SSH
 
 HEADER = """
    _____ _________ 
@@ -37,6 +38,7 @@ def root(config_file:str):
     about = About(config_file)
     encrypt = Encrypt(config_file)
     decrypt = Decrypt(config_file)
+    ssh = SSH(config_file)
     output.put_text(HEADER)
     output.put_tabs([
         {'title': 'new', 'content': new.create()},
@@ -44,12 +46,7 @@ def root(config_file:str):
         {'title': 'decrypt', 'content': decrypt.create()},
         {'title': 'verify', 'content': 'Hello world'},
         {'title': 'convert', 'content': 'Hello world'},
-        {'title': 'ssh', 'content': output.put_tabs([
-            {'title': 'add', 'content': 'Hello world'},
-            {'title': 'rm', 'content': 'Hello world'},
-            {'title': 'ls', 'content': 'Hello world'}])
-         
-        },
+        {'title': 'ssh', 'content': ssh.create()},
         {'title': 'convert', 'content': 'Hello world'},
         {'title': 'About', 'content': about.create()}
     ])

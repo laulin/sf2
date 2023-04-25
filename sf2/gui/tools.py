@@ -31,3 +31,14 @@ def check_input_output_file(input_name, output_name):
         raise Exception(f"Output file is invalid ({e})")
     
     return infilename, outfilename
+
+def check_input_file(input_name):
+    infilename = pin.pin[input_name]
+    try:
+        Path(infilename).resolve()
+        with open(infilename):
+            pass
+    except (OSError, RuntimeError) as e:
+        raise Exception(f"Input file is invalid ({e})")
+
+    return infilename
