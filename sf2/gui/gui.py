@@ -41,12 +41,12 @@ def root(config_file:str):
     ssh = SSH(config_file)
     output.put_text(HEADER)
     output.put_tabs([
-        {'title': 'new', 'content': new.create()},
-        {'title': 'encrypt', 'content': encrypt.create()},
-        {'title': 'decrypt', 'content': decrypt.create()},
-        {'title': 'verify', 'content': 'Hello world'},
-        {'title': 'convert', 'content': 'Hello world'},
-        {'title': 'ssh', 'content': ssh.create()},
+        {'title': 'New', 'content': new.create()},
+        {'title': 'Encrypt', 'content': encrypt.create()},
+        {'title': 'Decrypt', 'content': decrypt.create()},
+        {'title': 'Verify', 'content': 'Hello world'},
+        {'title': 'Convert', 'content': 'Hello world'},
+        {'title': 'SSH', 'content': ssh.create()},
         {'title': 'About', 'content': about.create()}
     ])
 
