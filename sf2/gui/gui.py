@@ -7,6 +7,7 @@ import webview
 from sf2.gui.new import New
 from sf2.gui.about import About
 from sf2.gui.encrypt import Encrypt
+from sf2.gui.decrypt import Decrypt
 
 HEADER = """
    _____ _________ 
@@ -34,11 +35,12 @@ def root():
     new = New()
     about = About()
     encrypt = Encrypt()
+    decrypt = Decrypt()
     output.put_text(HEADER)
     output.put_tabs([
         {'title': 'new', 'content': new.create()},
         {'title': 'encrypt', 'content': encrypt.create()},
-        {'title': 'decrypt', 'content': 'Hello world'},
+        {'title': 'decrypt', 'content': decrypt.create()},
         {'title': 'verify', 'content': 'Hello world'},
         {'title': 'convert', 'content': 'Hello world'},
         {'title': 'ssh', 'content': output.put_tabs([
@@ -51,7 +53,8 @@ def root():
         {'title': 'About', 'content': about.create()}
     ])
 
-@config(theme="dark", js_code=FOOTER_REMOVER)
+#@config(theme="dark", js_code=FOOTER_REMOVER)
+@config(theme="dark")
 def main():
     root()
     
