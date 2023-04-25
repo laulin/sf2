@@ -53,9 +53,10 @@ class Decrypt:
         
         core = CoreWithEnvironment()
 
-        private_key_file = pin.pin.decrypt_private_key_file
-        auth_id = pin.pin.decrypt_auth_id
-        private_key_password = pin.pin.private_key_password
+        private_key_file = pin.pin["decrypt_ssh_private_key_file"]
+        auth_id = pin.pin["decrypt_ssh_auth_id"]
+        private_key_password = bytes(pin.pin["decrypt_ssh_private_key_password"], "utf8")
+
         try:
             core.decrypt_ssh(infilename, outfilename, private_key_file, private_key_password, auth_id, support_format, force, self._config_file)
         except Exception as e:
@@ -90,9 +91,9 @@ class Decrypt:
         return output.put_column([
             pin.put_input("decrypt_ssh_infilename", help_text="Enter the input file path here", label="Input encrypted file"), 
             pin.put_input("decrypt_ssh_outfilename", help_text="Enter the output file path here", label="Output plaintext file"),
-            pin.put_file_upload("decrypt_ssh_private_key_file", placeholder=".ssh/id_ssh"),
-            pin.put_input("decrypt_ssh_private_key_password", "password", help_text="Enter your private key password here", label="PK Password"),
-            pin.put_input("decrypt_ssh_auth_id", help_text="Enter your auth_id here", label="Input encrypted file"), 
+            pin.put_input("decrypt_ssh_private_key_file", placeholder=".ssh/id_ssh", label="Private key file"),
+            pin.put_input("decrypt_ssh_private_key_password", "password", help_text="Enter your private key password here", label="Private key password"),
+            pin.put_input("decrypt_ssh_auth_id", help_text="Enter your auth_id here", label="Auth ID"), 
             output.put_text("Options"),
             output.put_row([
                 pin.put_checkbox("decrypt_ssh_force",options=["allow overwrite ?"]),
