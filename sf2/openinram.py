@@ -26,11 +26,16 @@ class OpenInRAM:
         self._log = logging.getLogger(f"{self.__class__.__name__}({file_object})")
         self._running = False
 
+        self._command = self.interpole_command(command)
+        self._log.debug(f"Command : {self._command}")
+
+    def interpole_command(self, command:str)->str:
         command = command.strip()
-        if re.search(r"\{\s*filename\s*\}", command) is None:
-            self._command = command + " {filename}"
+        if re.search(r"[\{\[]\s*filename\s*[\}\]]", command) is None:
+            return command + " {filename}"
         else:
-            self._command = command
+            command = re.sub(r"[\[]\s*filename\s*[\]]", "{filename}", command)
+            return command
 
     def write_back(self, watch_path:str):
         """
@@ -85,7 +90,9 @@ class OpenInRAM:
                 write_back_thread = Thread(target=self.write_back, args=(path,))
                 write_back_thread.start()
 
-                os.system(self._command.format(filename=path))
+                command = self._command.format(filename=path)
+                self._log.debug(f"Run command : {command}")
+                os.system(command)
                 # stopping the write back thread
                 self._running = False
             
