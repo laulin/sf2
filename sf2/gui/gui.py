@@ -47,7 +47,6 @@ def root(config_file:str):
         {'title': 'verify', 'content': 'Hello world'},
         {'title': 'convert', 'content': 'Hello world'},
         {'title': 'ssh', 'content': ssh.create()},
-        {'title': 'convert', 'content': 'Hello world'},
         {'title': 'About', 'content': about.create()}
     ])
 
