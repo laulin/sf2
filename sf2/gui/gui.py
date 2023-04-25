@@ -29,12 +29,6 @@ if (footerElement) {
 });
 """
 
-
-
-
-
-
-
 def root():
     new = New()
     about = About()

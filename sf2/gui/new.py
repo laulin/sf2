@@ -3,7 +3,7 @@ from pathlib import Path
 from pywebio import *
 
 from sf2.gui.tools import *
-from sf2.container_base import ContainerBase
+from sf2.core import Core
 
 
 
@@ -34,16 +34,9 @@ class New:
         if support_format is None:
             output.toast("Please select a format", color=ORANGE)
             return
-
-        support = get_format(support_format, filename)
-        container = ContainerBase(support)
-        try:
-            container.create(password, force)
-        except Exception as e:
-            output.toast(f"Ooops : {e}", color=RED)
-            return
         
-        container.write(b"", password)
+        core = Core()
+        core.new(filename, password, force, support_format)
 
         output.toast("Your file was created", color=BLUE)
 
