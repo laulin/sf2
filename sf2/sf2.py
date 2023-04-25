@@ -146,7 +146,7 @@ class SF2:
             password = getpass("Password : ")
             password_copy = getpass("Confirm password : ")
             if password != password_copy:
-                raise("Password are not the same, abord")
+                raise Exception("Password are not the same, abord")
         else:
             password = self._args.master_password_value
 
