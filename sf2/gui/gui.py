@@ -1,11 +1,11 @@
 import multiprocessing
-import os.path
-from pathlib import Path
+
 
 from pywebio import *
 import webview
 
 from sf2.gui.new import New
+from sf2.gui.about import About
 
 HEADER = """
    _____ _________ 
@@ -29,30 +29,15 @@ if (footerElement) {
 });
 """
 
-ABOUT = """# SF2
-Version 2.0.0
-Licence : MIT
-By Laulin
-
-__Special thanks to:__
-* [Spartan Conseil](https://spartan-conseil.fr) for giving me time and money, which allows me to give you a free software
-
-__Thanks to:__
-* [Cryptography](https://cryptography.io/en/latest/)
-* [PyWebIO](https://www.pyweb.io/) (Thank you for making GUI so easy !!!)
-* [Webview](https://pywebview.flowrl.com/)
-* [Msgpack](https://msgpack.org/) (what a greatful format)
-* [Inotify](https://pypi.org/project/inotify/)"""
 
 
 
-def about():
-    return output.put_column([
-        output.put_markdown(ABOUT)
-    ])
+
+
 
 def root():
     new = New()
+    about = About()
     output.put_text(HEADER)
     output.put_tabs([
         {'title': 'new', 'content': new.create()},
@@ -67,7 +52,7 @@ def root():
          
         },
         {'title': 'convert', 'content': 'Hello world'},
-        {'title': 'About', 'content': about()}
+        {'title': 'About', 'content': about.create()}
     ])
 
 @config(theme="dark", js_code=FOOTER_REMOVER)
