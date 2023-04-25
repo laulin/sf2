@@ -3,7 +3,7 @@ from pathlib import Path
 from pywebio import *
 
 from sf2.gui.tools import *
-from sf2.core import Core
+from sf2.core_with_environment import CoreWithEnvironment
 
 HELP_TITLE = "Help"
 HELP_TEXT = """
@@ -25,28 +25,23 @@ class Encrypt:
             output.toast("Password are incorrect", color=RED)
             return
         password = pin.pin["encrypt_password"]
-        
+              
         try:
-            Path(pin.pin["encrypt_infilename"]).resolve()
-        except (OSError, RuntimeError):
-            output.toast("Input input file path is invalid", color=RED)
-        infilename = pin.pin["encrypt_filename"]
-
-        try:
-            Path(pin.pin["encrypt_outfilename"]).resolve()
-        except (OSError, RuntimeError):
-            output.toast("Input output file path is invalid", color=RED)
-        outfilename = pin.pin["encrypt_outfilename"]
+            infilename, outfilename = check_input_output_file("encrypt_infilename", "encrypt_outfilename")
+        except Exception as e:
+            output.toast(f"{e}", color=RED)
+            return
 
         force = pin.pin["encrypt_force"] == ["allow overwrite ?"]
         support_format = pin.pin["encrypt_format"]
-
-        if support_format is None:
-            output.toast("Please select a format", color=ORANGE)
+       
+        core = CoreWithEnvironment()
+        try:
+            core.encrypt(infilename, outfilename, password, support_format, force)
+           
+        except Exception as e:
+            output.toast(f"Oups : {e}", color=RED)
             return
-        
-        core = Core()
-        core.encrypt(infilename, outfilename, password, support_format, force)
 
         output.toast("Your file was encrypted", color=BLUE)
 
@@ -62,10 +57,10 @@ class Encrypt:
             output.put_text("Options"),
             output.put_row([
                 pin.put_checkbox("encrypt_force",options=["allow overwrite ?"]),
-                pin.put_radio("encrypt_format", ["msgpack", "json"])
+                pin.put_radio("encrypt_format", ["msgpack", "json"], value="msgpack")
             ]),
             output.put_row([
-                output.put_button("Create", onclick=self.do),
+                output.put_button("Encrypt", onclick=self.do),
                 output.put_button("Help", onclick=self.help),
             ]),
         ])
