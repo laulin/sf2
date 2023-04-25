@@ -12,6 +12,7 @@ from sf2.gui.decrypt import Decrypt
 from sf2.gui.ssh import SSH
 from sf2.gui.verify import Verify
 from sf2.gui.convert import Convert
+from sf2.gui.open import Open
 
 HEADER = """
    _____ _________ 
@@ -43,9 +44,11 @@ def root(config_file:str):
     ssh = SSH(config_file)
     verify = Verify(config_file)
     convert = Convert(config_file)
+    open = Open(config_file)
 
     output.put_text(HEADER)
     output.put_tabs([
+        {'title': 'Open', 'content': open.create()},
         {'title': 'New', 'content': new.create()},
         {'title': 'Encrypt', 'content': encrypt.create()},
         {'title': 'Decrypt', 'content': decrypt.create()},
