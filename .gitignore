@@ -4,3 +4,4 @@ sf2.egg-info/*
 build/*
 *.spec
 test/.ssh/*
+test/.sf2/*
