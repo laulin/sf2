@@ -71,7 +71,6 @@ class SSH:
         core = CoreWithEnvironment()
         try:
             results = core.ssh_ls(infilename, support_format)
-            print(results)
             output.clear("ssh_ls")
 
             with output.use_scope("ssh_ls"):
