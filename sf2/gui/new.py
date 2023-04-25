@@ -5,9 +5,26 @@ from pywebio import *
 from sf2.gui.tools import *
 from sf2.core import Core
 
-HELP_TITLE = "Help"
+HELP_TITLE = "New Function"
 HELP_TEXT = """
-This is the help
+# New Function - User Manual
+
+The "New" function in our cryptographic software allows you to create a new, empty encrypted file based on a password. Please note that this feature does not support SSH keys. This page will guide you through the process of creating a new encrypted file using a password.
+
+## Creating a New Encrypted File
+
+To create a new encrypted file, follow these steps:
+
+1. Enter the desired file name for the new encrypted file in the "File Name" field.
+2. Input a password in the "Password" field. This password will be used to encrypt the file and will be required to access its content later.
+3. Re-enter the password in the "Password again" field to ensure that the password is entered correctly.
+4. (Optional) Choose the format of the encrypted file (JSON or MSGPACK) using the dropdown menu.
+
+Please note that if a file with the same name already exists, an error message will be displayed. However, you can choose to overwrite the existing file by checking the "Overwrite" box.
+
+Once you have filled in the required information and confirmed that the password matches in both fields, click the "Create" button to proceed. A new, empty encrypted file will be created using the specified password and file format.
+
+By following the instructions provided in this user manual, you can create new encrypted files with ease and ensure that your sensitive data remains protected.
 """
 
 class New:

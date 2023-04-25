@@ -5,9 +5,48 @@ from pywebio import *
 from sf2.gui.tools import *
 from sf2.core_with_environment import CoreWithEnvironment
 
-HELP_ADD_TITLE = "Help"
+HELP_ADD_TITLE = "SSH Function"
 HELP_ADD_TEXT = """
-This is the help
+# SSH Function - User Manual
+
+The "SSH" function in our cryptographic software allows you to manage public keys and their associated "Auth ID" in encrypted files. This feature has three sub-functions:
+
+- Add a public key
+- Remove a public key
+- List public keys in the encrypted file
+
+The "Auth ID" is important because it is unique and serves as an identifier to access the public keys.
+
+## Add a Public Key
+
+To add a public key to an encrypted file, follow these steps:
+
+1. Enter the encrypted file's name in the "Encrypted File" field.
+2. Input the password in the "Password" field. You cannot add a public key without the password.
+3. Provide the "Auth ID" associated with the public key in the "Auth ID" field.
+
+If the "Public Key" field is left empty, the default RSA public key for the user will be used (e.g., /home/user/.ssh/id_rsa.pub). If the "Auth ID" field is not defined, the "Auth ID" present in the public key will be used (e.g., user@my_computer).
+
+## Remove a Public Key
+
+To remove a public key from an encrypted file, follow these steps:
+
+1. Enter the encrypted file's name in the "Encrypted File" field.
+2. Provide the "Auth ID" associated with the public key you want to remove in the "Auth ID" field.
+
+If the "Auth ID" field is not provided, the software will use the user's "Auth ID" (e.g., user@my_computer).
+
+## List Public Keys in the Encrypted File
+
+To list the public keys in an encrypted file, follow these steps:
+
+1. Enter the encrypted file's name in the "Encrypted File" field.
+
+For all three sub-functions, you can specify the format of the encrypted file (JSON or MSGPACK) using the dropdown menu.
+
+Once you have filled in the required information for the desired sub-function, click the corresponding button (e.g., "Add", "Remove", or "List") to proceed.
+
+By following the instructions provided in this user manual, you can manage public keys and their associated "Auth ID" in encrypted files, ensuring secure access control and data protection.
 """
 
 

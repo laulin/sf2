@@ -5,9 +5,40 @@ from pywebio import *
 from sf2.gui.tools import *
 from sf2.core_with_environment import CoreWithEnvironment
 
-HELP_TITLE = "Help"
+HELP_TITLE = "Open function"
 HELP_TEXT = """
-This is the help
+# Open Function - User Manual
+
+Welcome to the user manual for the "Open" function of our cryptographic software. This page will guide you through opening an encrypted file using an external program and editing it without ever storing the unencrypted content on your hard drive. You can accomplish this task in two ways:
+
+1. By using a password (Password tab)
+2. By using an RSA private key (SSH tab)
+
+## Password Tab
+
+Follow these steps to open an encrypted file using a password:
+
+1. Enter the encrypted file's name in the "Encrypted File" field.
+2. Input the password in the "Password" field.
+3. Define the "Program" field, which contains the command line to be executed. You can use the "{filename}" variable within the command line to specify the file's position. By default, the file will be added to the end of the command.
+4. (Optional) Choose the format of the encrypted file (JSON or MSGPACK) using the dropdown menu.
+
+After providing the required information, click the "Open" button to proceed.
+
+## SSH Tab
+
+To open an encrypted file using an RSA private key, follow these steps:
+
+1. Enter the encrypted file's name in the "Encrypted File" field.
+2. In the "Private Key File" field, define the path to your RSA private key.
+3. (Optional) If your private key is protected with a password, enter it in the "Private Key Password" field.
+4. Provide the "Auth ID" associated with your private key in the "Auth ID" field.
+5. Define the "Program" field, which contains the command line to be executed. You can use the "{filename}" variable within the command line to specify the file's position. By default, the file will be added to the end of the command.
+6. (Optional) Choose the format of the encrypted file (JSON or MSGPACK) using the dropdown menu.
+
+Once you have filled in the required information, click the "Open" button to proceed.
+
+By following the instructions provided in this user manual, you can securely open and edit encrypted files without exposing their unencrypted content on your hard drive.
 """
 
 
@@ -38,8 +69,6 @@ class Open:
             output.toast(f"failed to decrypt ({e})", color=RED)
             return
 
-
-        output.toast("Your file was decrypted", color=BLUE)
 
     def do_ssh(self):
         try:

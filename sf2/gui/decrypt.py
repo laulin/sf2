@@ -5,9 +5,39 @@ from pywebio import *
 from sf2.gui.tools import *
 from sf2.core_with_environment import CoreWithEnvironment
 
-HELP_TITLE = "Help"
+HELP_TITLE = "Decrypt Function"
 HELP_TEXT = """
-This is the help
+# Decrypt Function - User Manual
+
+The "Decrypt" function in our cryptographic software allows you to create a new plaintext file by decrypting an existing encrypted file. This feature supports both password-based decryption (Password tab) and RSA key-based decryption (SSH tab). This page will guide you through the process of decrypting an encrypted file using either a password or an RSA key.
+
+Please note that by default, the decryption process will not proceed if the output plaintext file already exists. To overwrite the existing file, check the "Overwrite" box.
+
+## Password Tab
+
+To decrypt an encrypted file using a password, follow these steps:
+
+1. Enter the encrypted file's name in the "Encrypted File" field.
+2. Enter the desired file name for the new plaintext file in the "Output Plaintext File" field.
+3. Input the password in the "Password" field. This password must be the same as the one used to encrypt the file.
+4. (Optional) If you want to overwrite an existing plaintext file, check the "Overwrite" box.
+
+Once you have filled in the required information, click the "Decrypt" button to proceed. A new plaintext file will be created using the specified password, containing the decrypted data from the encrypted file.
+
+## SSH Tab
+
+To decrypt an encrypted file using an RSA private key, follow these steps:
+
+1. Enter the encrypted file's name in the "Encrypted File" field.
+2. Enter the desired file name for the new plaintext file in the "Output Plaintext File" field.
+3. In the "Private Key File" field, define the path to your RSA private key.
+4. (Optional) If your private key is protected with a password, enter it in the "Private Key Password" field.
+5. Provide the "Auth ID" associated with your private key in the "Auth ID" field.
+6. (Optional) If you want to overwrite an existing plaintext file, check the "Overwrite" box.
+
+Once you have filled in the required information, click the "Decrypt" button to proceed. A new plaintext file will be created using the specified RSA private key, containing the decrypted data from the encrypted file.
+
+By following the instructions provided in this user manual, you can decrypt encrypted files and create new plaintext files with ease, ensuring that your sensitive data remains protected when needed and accessible when required.
 """
 
 

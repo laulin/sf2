@@ -5,9 +5,33 @@ from pywebio import *
 from sf2.gui.tools import *
 from sf2.core_with_environment import CoreWithEnvironment
 
-HELP_TITLE = "Help"
+HELP_TITLE = "Verify Function"
 HELP_TEXT = """
-This is the help
+# Verify Function - User Manual
+
+The "Verify" function in our cryptographic software allows you to check whether it is possible to decrypt an existing encrypted file using the provided cryptographic elements (password or RSA private key). This feature supports both password-based verification (Password tab) and RSA key-based verification (SSH tab). This page will guide you through the process of verifying the decryptability of an encrypted file using either a password or an RSA key.
+
+## Password Tab
+
+To verify the decryptability of an encrypted file using a password, follow these steps:
+
+1. Enter the encrypted file's name in the "Encrypted File" field.
+2. Input the password in the "Password" field. This password must be the same as the one used to encrypt the file.
+
+Once you have filled in the required information, click the "Verify" button to proceed. The software will check whether the provided password is correct and display the result.
+
+## SSH Tab
+
+To verify the decryptability of an encrypted file using an RSA private key, follow these steps:
+
+1. Enter the encrypted file's name in the "Encrypted File" field.
+2. In the "Private Key File" field, define the path to your RSA private key.
+3. (Optional) If your private key is protected with a password, enter it in the "Private Key Password" field.
+4. Provide the "Auth ID" associated with your private key in the "Auth ID" field.
+
+Once you have filled in the required information, click the "Verify" button to proceed. The software will check whether the provided RSA private key can decrypt the encrypted file and display the result.
+
+By following the instructions provided in this user manual, you can verify the decryptability of encrypted files, ensuring that you can access your sensitive data when required with the correct cryptographic elements.
 """
 
 
