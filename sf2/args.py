@@ -24,8 +24,8 @@ def create_exclusive_secret(subparser):
     secret_choice.add_argument('--ssh-key', action='store_true', default=True, dest="ssh_key", help='Provide path a secret ssh key. If no path is provided, use default SSH key. This is the default behaviour')
 
     subparser.add_argument('-a', "--auth_id", required=False, dest='auth_id', help='Select the authentication id, need for SSH')
-    subparser.add_argument('-K', action='store', required=False, dest="ssh_key_password", help='Provide the password to unlock the private key')
-    subparser.add_argument('-y', action='store', required=False, dest="ssh_key_file", help='Provide the private key')
+    subparser.add_argument('-K', action='store', required=False, dest="private_key_password", help='Provide the password to unlock the private key')
+    subparser.add_argument('-y', action='store', required=False, dest="private_key_file", help='Provide the private key')
 
     add_master_password(subparser)
 
@@ -53,6 +53,9 @@ def add_io(subparser):
 def add_program(subparser):
     subparser.add_argument('-p', "--program", required=False, default="nano", dest='program', help='Program used to open the plain text file')
 
+def add_configFile(subparser):
+    subparser.add_argument('-F', action='store', required=False, dest="config_file", help='Provide the config file')
+
 def get_args(cli_args=None):
     parser = argparse.ArgumentParser(description=DESCRIPTION, formatter_class=RawTextHelpFormatter)
 
@@ -70,6 +73,7 @@ def get_args(cli_args=None):
     create_exclusive_secret(decrypt_parser)
     add_log(decrypt_parser)
     add_io(decrypt_parser)
+    add_configFile(decrypt_parser)
     add_format(decrypt_parser)
 
     # convert
@@ -84,12 +88,14 @@ def get_args(cli_args=None):
     add_log(open_parser)
     open_parser.add_argument('-c', "--config", required=False, default=None, dest='config_file', help='Define the configuration path. Default is /home/[dude]/.sf2/config')
     add_program(open_parser)
+    add_configFile(open_parser)
     add_format_and_tail_file(open_parser)
 
     # verify
     verify_parser = subparsers.add_parser('verify',  help='verify a file')
     create_exclusive_secret(verify_parser)
     add_log(verify_parser)
+    add_configFile(verify_parser)
     add_format_and_tail_file(verify_parser)
 
     # ssh
@@ -106,6 +112,7 @@ def get_args(cli_args=None):
     rm_ssh_parser = ssh_subparser.add_parser('rm',  help='Remove an ssh key from a container')
     add_log(rm_ssh_parser)
     rm_ssh_parser.add_argument("-a", '--auth-id', required=False, default=None, dest='auth_id', help='Define the authentification id, default is the one in the public key')
+    add_configFile(rm_ssh_parser)
     add_format_and_tail_file(rm_ssh_parser)
     # ssh ls
     ls_ssh_parser = ssh_subparser.add_parser('ls',  help='List all ssh public file')
@@ -121,6 +128,7 @@ def get_args(cli_args=None):
 
     # app
     app_parser = subparsers.add_parser('app', help='Run gui')
+    add_configFile(app_parser)
     add_log(app_parser)
 
     args =  parser.parse_args(cli_args)

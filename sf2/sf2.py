@@ -1,24 +1,12 @@
-from getpass import getpass,getuser
+from getpass import getpass
 import sys
 import logging
 import os.path
-from pathlib import Path
-import re
-import socket
 
 from sf2.args import get_args
-from sf2.openinram import OpenInRAM
-from sf2.file_object import FileObject
-from sf2.ssh_file_object import SSHFileObject
-from sf2.environment import Environment
-from sf2.core import Core
+from sf2.core_with_environment import CoreWithEnvironment
 
-from sf2.container_ssh import ContainerSSH
-from sf2.container_base import ContainerBase
-from sf2.json_support import JsonSupport
-from sf2.msgpack_support import MsgpackSupport
-
-from sf2.gui.gui import run_app, run_server
+from sf2.gui.gui import run_app
 
 
 
@@ -33,7 +21,7 @@ LOG_LEVELS = {
 class SF2:
     def __init__(self, args=None, _iterations:int=None) -> None:
         self._args = get_args(args)
-        self._core = Core(_iterations)
+        self._core = CoreWithEnvironment(_iterations)
         self._log = logging.getLogger(self.__class__.__name__)
 
     def main(self):
@@ -68,9 +56,9 @@ class SF2:
             password = self.get_master_password()
             self._core.decrypt(self._args.infilename, self._args.outfilename, password, self._args.format)
         else:
-            private_key_file = self.get_private_key()
-            auth_id = self.get_auth_id()
-            self._core.decrypt_ssh(self._args.infilename, self._args.outfilename, private_key_file, self._args.ssh_key_password, auth_id, self._args.format)
+            self._core.decrypt_ssh(self._args.infilename, self._args.outfilename, self._args.private_key_file, 
+                                   self._args.private_key_password, self._args.auth_id, self._args.format,
+                                   self._args.force, self._args.config_file)
 
     def verify(self):
         output = 0
@@ -81,9 +69,8 @@ class SF2:
                 status = self._core.verify(filename, password, self._args.format)
                    
             else:
-                private_key_file = self.get_private_key()
-                auth_id = self.get_auth_id()
-                status = self._core.verify_ssh(filename, private_key_file, self._args.ssh_key_password, auth_id, self._args.format)
+                status = self._core.verify_ssh(filename, self._args.private_key_file, self._args.private_key_password, 
+                                               self._args.auth_id, self._args.format, self._args.config_file)
             
             if status :
                 print(f"{filename} : OK")
@@ -104,9 +91,8 @@ class SF2:
             password = self.get_master_password()
             self._core.open(filename, self._args.program, password, self._args.format)
         else:
-            private_key_file = self.get_private_key()
-            auth_id = self.get_auth_id()
-            self._core.open_ssh(filename, self._args.program, private_key_file, self._args.ssh_key_password, auth_id, self._args.format)
+            self._core.open_ssh(filename, self._args.program, self._args.private_key_file, self._args.private_key_password, 
+                                self._args.auth_id, self._args.format, self._args.config_file)
 
 
     def ssh(self):
@@ -120,69 +106,27 @@ class SF2:
 
     def ssh_add(self):
         password = self.get_master_password()
-        public_key_file = self.get_public_key()
-        auth_id = self.get_auth_id(public_key_file)
         for filename in self._args.infilenames:
-            support = self.get_format(filename)
-            base = ContainerBase(support)
-            container = ContainerSSH(base)
-            container.add_ssh_key(password, public_key_file, auth_id)
+            self._core.ssh_add(filename, password, self._args.public_key_file, self._args.auth_id, self._args.format)
 
     def ssh_rm(self):
-        auth_id = self.get_auth_id()
         for filename in self._args.infilenames:
-            support = self.get_format(filename)
-            container = ContainerSSH(support)
-            container.remove_ssh_key(auth_id)
+            self._core.ssh_rm(filename, self._args.auth_id, self._args.format, self._args.config_file)
 
     def ssh_ls(self):
         for filename in self._args.infilenames:
-            support = self.get_format(filename)
-            container = ContainerSSH(support)
             print(f"{filename} :")
-            for user, pk in container.list_ssh_key().items():
+            for user, pk in self._core.ssh_ls(filename, self._args.format):
                 print(user, pk)
 
     def new(self):
         password = self.get_or_create_master_password()
 
         for filename in self._args.infilenames:
-            support = self.get_format(filename)
-            container = ContainerBase(support)
-            container.create(password, self._args.force)
-            container.write(b"", password)
+            self._core.new(filename, password, self._args.force, self._args.format)
 
     def app(self):
         run_app()
-
-    def get_format(self, filename:str):
-        if self._args.format == "json":
-            return JsonSupport(filename)
-        elif self._args.format == "msgpack":
-            return MsgpackSupport(filename)
-        else:
-            raise Exception(f"Format {self._args.format} is not supported")
-        
-    def get_home(self)->str:
-        return str(Path.home())
-    
-    def get_default_rsa_private_key(self)->str:
-        return os.path.join(self.get_home(), ".ssh", "id_rsa")
-        
-    def get_private_key(self, from_config:str=None):
-        if from_config is not None:
-            if not os.path.exists(from_config):
-                raise Exception(f"ssh key {from_config} defined in configuration doesn't exist")
-            return from_config
-        
-        elif self._args.ssh_key_file is None:
-            rsa_path = self.get_default_rsa_private_key()
-            if os.path.exists(rsa_path):
-                return rsa_path
-            else:
-                raise Exception(f"ssh key is not defined and {rsa_path} doesn't exist")
-        else:
-            return self._args.ssh_key_file
             
     def get_master_password(self)->str:
         try: 
@@ -209,29 +153,6 @@ class SF2:
 
         return password
         
-    def get_public_key(self):
-        if self._args.public_key_file:
-            return self._args.public_key_file
-        
-        if os.path.exists(f"/home/{getuser()}/.ssh/id_rsa.pub"):
-            return f"/home/{getuser()}/.ssh/id_rsa.pub"
-        
-        raise Exception(f"Public key file is not provided and default one is not available (/home/{getuser()}/.ssh/id_rsa.pub)")
-    
-    def get_auth_id(self, public_key_file=None):
-        if self._args.auth_id:
-            return self._args.auth_id
-        
-        if public_key_file:
-            with open(public_key_file) as f:
-                key = f.read()
-                key = key.strip()
-
-            re_result = re.search(r"ssh-rsa AAAA[0-9A-Za-z+/]+[=]{0,3} ([^@]+@[^@\r\n]+)", key)
-            return re_result.group(1)
-        
-        return f"{getuser()}@{socket.gethostname()}"
-
 if __name__ == "__main__":
     sf2 = SF2()
     sf2.main()
