@@ -71,7 +71,7 @@ class Core:
             container.read(auth_id, private_key_file, private_key_password)
             return True
         except Exception as e:
-            print(e)
+            self._log.debug(f"Error during verify_ssh : {e}")
             return False
 
 
