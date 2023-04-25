@@ -6,6 +6,7 @@ import webview
 
 from sf2.gui.new import New
 from sf2.gui.about import About
+from sf2.gui.encrypt import Encrypt
 
 HEADER = """
    _____ _________ 
@@ -32,10 +33,11 @@ if (footerElement) {
 def root():
     new = New()
     about = About()
+    encrypt = Encrypt()
     output.put_text(HEADER)
     output.put_tabs([
         {'title': 'new', 'content': new.create()},
-        {'title': 'encrypt', 'content': 'Hello world'},
+        {'title': 'encrypt', 'content': encrypt.create()},
         {'title': 'decrypt', 'content': 'Hello world'},
         {'title': 'verify', 'content': 'Hello world'},
         {'title': 'convert', 'content': 'Hello world'},
