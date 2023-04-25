@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from pywebio import *
 
 from sf2.gui.tools import *
