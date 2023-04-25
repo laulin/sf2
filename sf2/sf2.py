@@ -41,11 +41,10 @@ class SF2:
             print("Usage --help for information")
             return
 
-        commands[self._args.commands]()
-        # try:
-        #     commands[self._args.commands]()
-        # except Exception as e:
-        #     self._log.critical(str(e))
+        try:
+            commands[self._args.commands]()
+        except Exception as e:
+            self._log.critical(str(e))
 
     def encrypt(self):
         password = self.get_or_create_master_password()
