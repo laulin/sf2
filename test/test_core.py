@@ -5,7 +5,7 @@ import shutil
 
 from sf2.core import Core
 
-TEST_DIR = "/tmp/test"
+TEST_DIR = "/tmp/test_core"
 PUBLIC_KEY = "test/.ssh/id_rsa.pub"
 PRIVATE_KEY = "test/.ssh/id_rsa"
 AUTH_ID = "test@test"
@@ -65,7 +65,6 @@ class TestCore(unittest.TestCase):
         self.assertFalse(result)
 
     def test_open(self):
-
         core = Core(_iterations=100)
         core.encrypt(SOURCE, ENCRYPTED, PASSWORD)
         program = "cat {filename} > "+OUTPUT
@@ -73,7 +72,6 @@ class TestCore(unittest.TestCase):
         
         with open(OUTPUT) as f:
             result = f.read()
-
         expected = "Example ! "
 
         self.assertEqual(result, expected)
