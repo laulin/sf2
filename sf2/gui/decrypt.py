@@ -41,15 +41,15 @@ class Decrypt:
 
         output.toast("Your file was decrypted", color=BLUE)
 
-    def do_rsa(self):
+    def do_ssh(self):
         try:
-            infilename, outfilename = check_input_output_file("decrypt_rsa_infilename", "decrypt_rsa_outfilename")
+            infilename, outfilename = check_input_output_file("decrypt_ssh_infilename", "decrypt_ssh_outfilename")
         except Exception as e:
             output.toast(f"{e}", color=RED)
             return
 
-        force = pin.pin["decrypt_rsa_force"] == ["allow overwrite ?"]
-        support_format = pin.pin["decrypt_rsa_format"]
+        force = pin.pin["decrypt_ssh_force"] == ["allow overwrite ?"]
+        support_format = pin.pin["decrypt_ssh_format"]
         
         core = CoreWithEnvironment()
 
@@ -67,7 +67,7 @@ class Decrypt:
     def help_password(self):
         output.popup(HELP_TITLE, HELP_TEXT)
 
-    def help_rsa(self):
+    def help_ssh(self):
         output.popup(HELP_TITLE, HELP_TEXT)
 
     def create_password(self):
@@ -86,64 +86,26 @@ class Decrypt:
             ])
         ])
     
-    def create_rsa(self):
+    def create_ssh(self):
         return output.put_column([
-            pin.put_input("decrypt_rsa_infilename", help_text="Enter the input file path here", label="Input encrypted file"), 
-            pin.put_input("decrypt_rsa_outfilename", help_text="Enter the output file path here", label="Output plaintext file"),
-            pin.put_file_upload("decrypt_rsa_private_key_file", placeholder=".ssh/id_rsa"),
-            pin.put_input("decrypt_rsa_private_key_password", "password", help_text="Enter your private key password here", label="PK Password"),
-            pin.put_input("decrypt_rsa_auth_id", help_text="Enter your auth_id here", label="Input encrypted file"), 
+            pin.put_input("decrypt_ssh_infilename", help_text="Enter the input file path here", label="Input encrypted file"), 
+            pin.put_input("decrypt_ssh_outfilename", help_text="Enter the output file path here", label="Output plaintext file"),
+            pin.put_file_upload("decrypt_ssh_private_key_file", placeholder=".ssh/id_ssh"),
+            pin.put_input("decrypt_ssh_private_key_password", "password", help_text="Enter your private key password here", label="PK Password"),
+            pin.put_input("decrypt_ssh_auth_id", help_text="Enter your auth_id here", label="Input encrypted file"), 
             output.put_text("Options"),
             output.put_row([
-                pin.put_checkbox("decrypt_rsa_force",options=["allow overwrite ?"]),
-                pin.put_radio("decrypt_rsa_format", ["msgpack", "json"], value="msgpack")
+                pin.put_checkbox("decrypt_ssh_force",options=["allow overwrite ?"]),
+                pin.put_radio("decrypt_ssh_format", ["msgpack", "json"], value="msgpack")
             ]),
             output.put_row([
-                output.put_button("Decrypt", onclick=self.do_rsa),
-                output.put_button("Help", onclick=self.help_rsa),
+                output.put_button("Decrypt", onclick=self.do_ssh),
+                output.put_button("Help", onclick=self.help_ssh),
             ])
         ])
 
     def create(self):
-        # return_output = output.put_column([
-        #     pin.put_input("decrypt_infilename", help_text="Enter the input file path here", label="Input encrypted file"), 
-        #     pin.put_input("decrypt_outfilename", help_text="Enter the output file path here", label="Output plaintext file"),
-        #     # output.put_collapse('Password',[
-        #     #     pin.put_input("decrypt_password", "password", help_text="Enter your password here", label="Master Password"),
-
-        #     # ], open=False),
-        #     # output.put_collapse('RSA', [
-        #     #     pin.put_file_upload("decrypt_private_key_file", placeholder=".ssh/id_rsa"),
-        #     #     pin.put_input("decrypt_private_key_password", "password", help_text="Enter your private key password here", label="PK Password"),
-        #     #     pin.put_input("decrypt_auth_id", help_text="Enter your auth_id here", label="Input encrypted file"), 
-        #     # ], open=True),
-
-        #     output.put_tabs([
-        #         {'title': 'RSA', 'content': [
-        #             pin.put_file_upload("decrypt_private_key_file", placeholder=".ssh/id_rsa"),
-        #             pin.put_input("decrypt_private_key_password", "password", help_text="Enter your private key password here", label="PK Password"),
-        #             pin.put_input("decrypt_auth_id", help_text="Enter your auth_id here", label="Input encrypted file")
-        #         ]},
-        #         {'title': 'password', 'content': [
-        #             pin.put_input("decrypt_password", "password", help_text="Enter your password here", label="Master Password")
-        #         ]}
-        #      ]),
-            
-        #     pin.put_radio("decrypt_mode", ["ssh", "password"],value="ssh"),
-        #     output.put_text("Options"),
-        #     output.put_row([
-        #         pin.put_checkbox("decrypt_force",options=["allow overwrite ?"]),
-        #         pin.put_radio("decrypt_format", ["msgpack", "json"], value="msgpack")
-        #     ]),
-        #     output.put_row([
-        #         output.put_button("Decrypt", onclick=self.do),
-        #         output.put_button("Help", onclick=self.help),
-        #     ]),
-        # ])
-
-        # return return_output
-
         return output.put_tabs([
-                {'title': 'RSA', 'content': self.create_rsa()},
-                {'title': 'password', 'content': self.create_password()}
+                {'title': 'SSH', 'content': self.create_ssh()},
+                {'title': 'Password', 'content': self.create_password()}
              ])
