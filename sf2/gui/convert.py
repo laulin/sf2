@@ -53,7 +53,7 @@ class Convert:
                 pin.put_radio("convert_format", ["msgpack", "json"], value="msgpack")
             ]),
             output.put_row([
-                output.put_button("Encrypt", onclick=self.do),
+                output.put_button("Convert", onclick=self.do),
                 output.put_button("Help", onclick=self.help),
             ]),
         ])
