@@ -125,7 +125,7 @@ class SF2:
             self._core.new(filename, password, self._args.force, self._args.format)
 
     def app(self):
-        run_app()
+        run_app(config_file=self._args.config_file)
             
     def get_master_password(self)->str:
         try: 

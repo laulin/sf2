@@ -1,4 +1,5 @@
 import multiprocessing
+from functools import partial
 
 
 from pywebio import *
@@ -31,11 +32,11 @@ if (footerElement) {
 });
 """
 
-def root():
-    new = New()
-    about = About()
-    encrypt = Encrypt()
-    decrypt = Decrypt()
+def root(config_file:str):
+    new = New(config_file)
+    about = About(config_file)
+    encrypt = Encrypt(config_file)
+    decrypt = Decrypt(config_file)
     output.put_text(HEADER)
     output.put_tabs([
         {'title': 'new', 'content': new.create()},
@@ -53,14 +54,14 @@ def root():
         {'title': 'About', 'content': about.create()}
     ])
 
-#@config(theme="dark", js_code=FOOTER_REMOVER)
-@config(theme="dark")
-def main():
-    root()
+@config(theme="dark", js_code=FOOTER_REMOVER)
+def main(config_file:str):
+    root(config_file)
     
 
-def run_app(port=8888):
-    t = multiprocessing.Process(target=start_server, kwargs={"applications":main, "port":8888, "debug":True, "host":"127.0.0.1"}, daemon=True)
+def run_app(port=8888, config_file:str=None):
+    main_thread = partial(main, config_file)
+    t = multiprocessing.Process(target=start_server, kwargs={"applications":main_thread, "port":port, "debug":True, "host":"127.0.0.1"}, daemon=True)
     t.start()
 
     webview.create_window('SF2', f'http://127.0.0.1:{port}', height=1000)

@@ -12,8 +12,8 @@ This is the help
 
 
 class Decrypt:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, configFile:str) -> None:
+        self._config_file = configFile
         
     def do_password(self):
         try:
@@ -57,7 +57,7 @@ class Decrypt:
         auth_id = pin.pin.decrypt_auth_id
         private_key_password = pin.pin.private_key_password
         try:
-            core.decrypt_ssh(infilename, outfilename, private_key_file, private_key_password, auth_id, support_format, force)
+            core.decrypt_ssh(infilename, outfilename, private_key_file, private_key_password, auth_id, support_format, force, self._config_file)
         except Exception as e:
             output.toast(f"failed to decrypt ({e})", color=RED)
             return

@@ -16,7 +16,7 @@ __Thanks to:__
 * [Inotify](https://pypi.org/project/inotify/)"""
 
 class About:
-    def __init__(self) -> None:
+    def __init__(self, configFile:str) -> None:
         pass
 
     def create(self):

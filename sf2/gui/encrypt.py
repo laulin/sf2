@@ -12,8 +12,8 @@ This is the help
 
 
 class Encrypt:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, configFile:str) -> None:
+        self._config_file = configFile
         
     def do(self):
 
