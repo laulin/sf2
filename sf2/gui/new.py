@@ -5,7 +5,10 @@ from pywebio import *
 from sf2.gui.tools import *
 from sf2.core import Core
 
-
+HELP_TITLE = "Help"
+HELP_TEXT = """
+This is the help
+"""
 
 class New:
     def __init__(self) -> None:
@@ -41,7 +44,7 @@ class New:
         output.toast("Your file was created", color=BLUE)
 
     def help_new(self):
-        output.popup("Help", "This is the help")
+        output.popup(HELP_TITLE, HELP_TEXT)
 
     def create(self):
         return output.put_column([
