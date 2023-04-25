@@ -25,11 +25,11 @@ class New:
             return
         password = pin.pin["new_password"]
         
+        filename = pin.pin["new_filename"]
         try:
-            Path(pin.pin["new_filename"]).resolve()
+            Path(filename).resolve()
         except (OSError, RuntimeError):
             output.toast("File path is invalid", color=RED)
-        filename = pin.pin["new_filename"]
 
         force = pin.pin["new_force"] == ["allow overwrite ?"]
         support_format = pin.pin["new_format"]
@@ -54,7 +54,7 @@ class New:
             output.put_text("Options"),
             output.put_row([
                 pin.put_checkbox("new_force",options=["allow overwrite ?"]),
-                pin.put_radio("new_format", ["msgpack", "json"])
+                pin.put_radio("new_format", ["msgpack", "json"], value="msgpack")
             ]),
             output.put_row([
                 output.put_button("Create", onclick=self.do_new),
