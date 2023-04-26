@@ -5,7 +5,7 @@ class FileObject:
         self._container = ContainerBase(support)
         self._password = password
         self._iterations = _iterations
-        self._info = support.get_info()
+        self._info = support.get_filename()
 
     def decrypt(self)->bytes:
         return self._container.read(self._password, self._iterations)

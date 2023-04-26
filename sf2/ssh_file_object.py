@@ -8,7 +8,7 @@ class SSHFileObject:
         self._auth_id = auth_id
         self._private_ssh_file = private_ssh_file
         self._password_private_ssh_file = password_private_ssh_file
-        self._info = support.get_info()
+        self._info = support.get_filename()
 
     def decrypt(self)->bytes:
         return self._container.read(self._auth_id, self._private_ssh_file, self._password_private_ssh_file)

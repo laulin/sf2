@@ -27,7 +27,7 @@ class ContainerBase:
     def __init__(self, support) -> None:
         self._support = support
 
-        self._log = logging.getLogger(f"{self.__class__.__name__}({support.get_info()})")
+        self._log = logging.getLogger(f"{self.__class__.__name__}({support.get_filename()})")
 
     def b64encode(self, data:bytes)->str:
         """
@@ -149,7 +149,7 @@ class ContainerBase:
             _iterations = ContainerBase.KDF_ITERATION
 
         if not force and self._support.is_exist():
-            raise Exception(f"{self._support.get_info()} already exists")
+            raise Exception(f"{self._support.get_filename()} already exists")
         
         master_iv = self._create_salt()
         master_data_key = self._create_iv()
@@ -176,7 +176,7 @@ class ContainerBase:
         
         self._support.dump(container)
 
-        self._log.info(f"Creation of {self._support.get_info()}")
+        self._log.info(f"Creation of {self._support.get_filename()}")
 
 
     def get_master_data_key(self, container:dict, password:str, _iterations:int=None)->bytes:

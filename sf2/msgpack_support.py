@@ -40,7 +40,7 @@ class MsgpackSupport:
             f.write(msgpack_container)
 
         
-    def get_info(self)->str:
+    def get_filename(self)->str:
         return self._filename
     
     

@@ -95,7 +95,7 @@ class JsonSupport:
         else:
             return data
         
-    def get_info(self)->str:
+    def get_filename(self)->str:
         return self._filename
     
     def is_exist(self)->bool:
