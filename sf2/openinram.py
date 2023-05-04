@@ -5,6 +5,7 @@ import logging
 import re
 
 import inotify.adapters
+from flufl.lock import Lock
 
 RAMFS = "/dev/shm"
 
@@ -65,17 +66,8 @@ class OpenInRAM:
                         self._log.debug(f"Sync plain ({watch_path}) to encrypted")
                         self._file_object.encrypt(watch_path)
 
-
-    def run(self):
-        """
-        It creates a temporary file in the shared memory, writes the decrypted data to it, opens it in
-        the editor, encrypts the file and deletes it
-        """
-
+    def run_write(self):
         decrypted = self._file_object.decrypt()
-
-        # Remove logs grom inotify
-        logging.getLogger('inotify.adapters').setLevel(logging.WARNING)
 
         try:
             fd, path = mkstemp(dir=RAMFS, suffix=".plain")
@@ -101,3 +93,22 @@ class OpenInRAM:
         finally:
             self._log.debug(f"Tmp file {path} safely remove")
             os.unlink(path)
+
+
+    def run(self):
+        """
+        It creates a temporary file in the shared memory, writes the decrypted data to it, opens it in
+        the editor, encrypts the file and deletes it
+        """
+        # Remove logs from inotify
+        logging.getLogger('inotify.adapters').setLevel(logging.WARNING)
+
+        filename = str(self._file_object)
+        lock_file = filename + ".lock"
+        lock = Lock(lock_file)
+
+        if not lock.is_locked:
+            with lock:
+                self.run_write()
+        else:
+            raise Exception(f"File {filename} is already open")
