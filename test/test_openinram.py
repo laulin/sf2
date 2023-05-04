@@ -2,6 +2,8 @@ import unittest
 import os
 import shutil
 import logging
+import time
+import multiprocessing
 
 from sf2.openinram import OpenInRAM
 from sf2.json_support import JsonSupport
@@ -50,7 +52,6 @@ class TestOpenInRAM(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_open(self):
-        logging.basicConfig(level=logging.ERROR)
         c = Core(100)
         c.encrypt(SOURCE, ENCRYPTED, PASSWORD, "json")
 
@@ -65,3 +66,46 @@ class TestOpenInRAM(unittest.TestCase):
 
         expected = "Example ! "
         self.assertEqual(results, expected)
+
+    def test_open_dual(self):
+        c = Core(100)
+        c.encrypt(SOURCE, ENCRYPTED, PASSWORD, "json")
+
+        support = JsonSupport(ENCRYPTED)
+        file_object = FileObject(support, PASSWORD, 100)
+
+        open_in_ram_w = OpenInRAM(file_object, 'echo "hello" > {filename} && sleep 1')
+        process = multiprocessing.Process(target=open_in_ram_w.run)
+        process.start()
+
+        time.sleep(0.5)
+
+        open_in_ram_r = OpenInRAM(file_object, "cat {filename}  > /tmp/test_open_ssh/output.txt")
+        open_in_ram_r.run()
+
+        with open("/tmp/test_open_ssh/output.txt") as f:
+            results = f.read()
+
+        process.join()
+
+        expected = "hello\n"
+        self.assertEqual(results, expected)
+
+    def test_open_dual_failed(self):
+        #logging.basicConfig(level=logging.DEBUG)
+        c = Core(100)
+        c.encrypt(SOURCE, ENCRYPTED, PASSWORD, "json")
+
+        support = JsonSupport(ENCRYPTED)
+        file_object = FileObject(support, PASSWORD, 100)
+
+        open_in_ram_w = OpenInRAM(file_object, 'echo "hello" > {filename} && sleep 1')
+        process = multiprocessing.Process(target=open_in_ram_w.run)
+        process.start()
+
+        time.sleep(0.5)
+
+        open_in_ram_r = OpenInRAM(file_object, 'echo "world" > {filename}')
+        open_in_ram_r.run()
+
+        process.join()

@@ -6,6 +6,7 @@ import re
 
 import inotify.adapters
 from flufl.lock import Lock
+from flufl.lock import TimeOutError
 
 RAMFS = "/dev/shm"
 
@@ -66,6 +67,30 @@ class OpenInRAM:
                         self._log.debug(f"Sync plain ({watch_path}) to encrypted")
                         self._file_object.encrypt(watch_path)
 
+    def read_back(self, destination_path:str):
+        watch_path = str(self._file_object)
+        i = inotify.adapters.Inotify()
+
+        i.add_watch(RAMFS)
+
+        for event in i.event_gen():
+
+            if not self._running:
+                return
+
+            if event is not None:
+                (_, type_names, path, filename) = event
+
+                if os.path.join(path, filename) == watch_path:
+                    if "IN_CLOSE_WRITE" in type_names:
+                        self._log.debug(f"Sync plain ({watch_path})")
+                        decrypted = self._file_object.decrypt()
+                        os.chmod(destination_path, 0o600)
+                        with open(destination_path, 'wb') as f:
+                            f.write(decrypted)
+                            f.flush()
+                        os.chmod(destination_path, 0o400)
+
     def run_write(self):
         decrypted = self._file_object.decrypt()
 
@@ -85,14 +110,44 @@ class OpenInRAM:
                 command = self._command.format(filename=path)
                 self._log.debug(f"Run command : {command}")
                 os.system(command)
-                # stopping the write back thread
-                self._running = False
             
         except Exception as e:
             self._log.error(f"Something failed : {e}")
         finally:
             self._log.debug(f"Tmp file {path} safely remove")
             os.unlink(path)
+            # stopping the thread
+            self._running = False
+
+    def run_read(self):
+        decrypted = self._file_object.decrypt()
+
+        try:
+            fd, path = mkstemp(dir=RAMFS, suffix=".plain")
+            self._log.debug(f"Create tmp file {path} (fd={fd})")
+            with os.fdopen(fd, 'wb') as f:
+                f.write(decrypted)
+                f.flush()
+            self._log.debug(f"Tmp file {path} is now read only")
+            os.chmod(path, 0o400)
+
+            # Run a thread that monitor file change.
+            # This way, modification are automatically write back to the encrypted file
+            self._running = True
+            read_back_thread = Thread(target=self.read_back, args=(fd,))
+            read_back_thread.start()
+
+            command = self._command.format(filename=path)
+            self._log.debug(f"Run command : {command}")
+            os.system(command)
+            
+        except Exception as e:
+            self._log.error(f"Something failed : {e}")
+        finally:
+            self._log.debug(f"Tmp file {path} safely remove")
+            os.unlink(path)
+            # stopping the thread
+            self._running = False
 
 
     def run(self):
@@ -105,10 +160,11 @@ class OpenInRAM:
 
         filename = str(self._file_object)
         lock_file = filename + ".lock"
-        lock = Lock(lock_file)
 
-        if not lock.is_locked:
-            with lock:
+        try:
+            with Lock(lock_file, default_timeout=0):
+                self._log.debug(f"Entering in write allowed section")
                 self.run_write()
-        else:
-            raise Exception(f"File {filename} is already open")
+        except TimeOutError:
+            self._log.debug(f"Entering in read only section")
+            self.run_read()
