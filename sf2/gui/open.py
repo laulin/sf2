@@ -107,7 +107,7 @@ class Open:
             output.put_text("Options"),
             pin.put_radio("open_password_format", ["msgpack", "json"], value="msgpack"),
             output.put_row([
-                output.put_button("Decrypt", onclick=self.do_password),
+                output.put_button("Open", onclick=self.do_password),
                 output.put_button("Help", onclick=self.help_password),
             ])
         ])
