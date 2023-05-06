@@ -5,3 +5,4 @@ build/*
 *.spec
 test/.ssh/*
 test/.sf2/*
+**.x
