@@ -52,7 +52,7 @@ class OpenInRAM:
         """
         i = inotify.adapters.Inotify()
 
-        i.add_watch(RAMFS)
+        i.add_watch(watch_path)
 
         for event in i.event_gen():
 
@@ -60,18 +60,21 @@ class OpenInRAM:
                 return
 
             if event is not None:
-                (_, type_names, path, filename) = event
+                (_, type_names, _, _) = event
 
-                if os.path.join(path, filename) == watch_path:
-                    if "IN_CLOSE_WRITE" in type_names:
-                        self._log.debug(f"Sync plain ({watch_path}) to encrypted")
+                if "IN_CLOSE_WRITE" in type_names:
+                    try:
                         self._file_object.encrypt(watch_path)
+                        self._log.debug(f"Sync plain ({watch_path}) to encrypted")
+                    except FileNotFoundError as e:
+                        self._log.debug(f"No Sync plain ({watch_path}) : {e}")
 
     def read_back(self, destination_path:str):
         watch_path = str(self._file_object)
+        self._log.debug(f"Watch encrypted file {watch_path} and destination is {destination_path}")
         i = inotify.adapters.Inotify()
 
-        i.add_watch(RAMFS)
+        i.add_watch(watch_path)
 
         for event in i.event_gen():
 
@@ -79,17 +82,19 @@ class OpenInRAM:
                 return
 
             if event is not None:
-                (_, type_names, path, filename) = event
+                (_, type_names, _, _) = event
 
-                if os.path.join(path, filename) == watch_path:
-                    if "IN_CLOSE_WRITE" in type_names:
-                        self._log.debug(f"Sync plain ({watch_path})")
-                        decrypted = self._file_object.decrypt()
+                if "IN_CLOSE_WRITE" in type_names:
+                    decrypted = self._file_object.decrypt()
+                    try:
                         os.chmod(destination_path, 0o600)
                         with open(destination_path, 'wb') as f:
                             f.write(decrypted)
                             f.flush()
                         os.chmod(destination_path, 0o400)
+                        self._log.debug(f"Sync plain ({watch_path}) from encrypted")
+                    except Exception as e:
+                        self._log.warning(f"Failed to sync : {e}")
 
     def run_write(self):
         decrypted = self._file_object.decrypt()
@@ -134,7 +139,7 @@ class OpenInRAM:
             # Run a thread that monitor file change.
             # This way, modification are automatically write back to the encrypted file
             self._running = True
-            read_back_thread = Thread(target=self.read_back, args=(fd,))
+            read_back_thread = Thread(target=self.read_back, args=(path,))
             read_back_thread.start()
 
             command = self._command.format(filename=path)
@@ -151,10 +156,6 @@ class OpenInRAM:
 
 
     def run(self):
-        """
-        It creates a temporary file in the shared memory, writes the decrypted data to it, opens it in
-        the editor, encrypts the file and deletes it
-        """
         # Remove logs from inotify
         logging.getLogger('inotify.adapters').setLevel(logging.WARNING)
 

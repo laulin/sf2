@@ -109,3 +109,32 @@ class TestOpenInRAM(unittest.TestCase):
         open_in_ram_r.run()
 
         process.join()
+
+
+    # def test_open_read_back(self):
+    #     logging.basicConfig(level=logging.DEBUG)
+    #     c = Core(100)
+    #     c.encrypt(SOURCE, ENCRYPTED, PASSWORD, "json")
+
+    #     support = JsonSupport(ENCRYPTED)
+    #     file_object = FileObject(support, PASSWORD, 100)
+
+    #     open_in_ram_w = OpenInRAM(file_object, 'echo "hello" > {filename} && sleep 1 && echo "world" > {filename}')
+    #     process = multiprocessing.Process(target=open_in_ram_w.run)
+    #     process.start()
+
+    #     time.sleep(0.5)
+
+    #     open_in_ram_r = OpenInRAM(file_object, "cat {filename}  > /tmp/test_open_ssh/output.txt  && sleep 1 && cat {filename}  > /tmp/test_open_ssh/output2.txt")
+    #     open_in_ram_r.run()
+
+    #     with open("/tmp/test_open_ssh/output.txt") as f:
+    #         results = f.read()
+
+    #     with open("/tmp/test_open_ssh/output2.txt") as f:
+    #         results2 = f.read()
+
+    #     process.join()
+
+    #     print(results)
+    #     print(results2)
