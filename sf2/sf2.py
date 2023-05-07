@@ -159,7 +159,10 @@ class SF2:
             password = self._args.master_password_value
 
         return password
-        
-if __name__ == "__main__":
+    
+def main():
     sf2 = SF2()
     sf2.main()
+        
+if __name__ == "__main__":
+    main()
