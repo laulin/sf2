@@ -61,14 +61,14 @@ class SSH:
             output.toast(f"{e}", color=RED)
             return
         
-        if len(pin.pin["ssh_add_master_password"]) == 0:
+        if len(pin.pin["ssh_add_password"]) == 0:
             output.toast("Empty password is not allowed", color=RED)
             return
             
         support_format = pin.pin["ssh_add_format"]
         
         core = CoreWithEnvironment()
-        password = pin.pin["ssh_add_master_password"]
+        password = pin.pin["ssh_add_password"]
         public_key_file = pin.pin["ssh_add_public_key_file"]
         auth_id = pin.pin["ssh_add_auth_id"]
         try:
@@ -141,7 +141,7 @@ class SSH:
     def create_add(self):
         return output.put_column([
             pin.put_input("ssh_add_filename", help_text="Enter the entr file path here", label="Input encrypted file"), 
-            pin.put_input("ssh_add_master_password", "password", help_text="Enter the master password here", label="Master Password"),
+            pin.put_input("ssh_add_password", "password", help_text="Enter the password here", label="Password"),
             pin.put_input("ssh_add_public_key_file", help_text="Enter your public key file here", label="Public key file"),
             pin.put_input("ssh_add_auth_id", help_text="Enter your auth_id here", label="Auth ID"), 
             output.put_text("Options"),

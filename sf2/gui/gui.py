@@ -43,7 +43,7 @@ Simple Fernet File (SF2) is a cryptographic software designed to protect and man
 
 This cryptographic software designed to protect your sensitive data while allowing seamless collaboration between team members or different entities without sharing a secret. This user manual will provide an overview of the software's functionalities and guide you through its various features.
 
-SF2 utilizes a "Master Password" for administrative access to encrypted files. This password can be used alone to access the files, but it is not recommended. Instead, SF2 supports the addition of RSA public keys in the SSH format, allowing secure access to files associated with machines/accounts/users. This cryptographic approach enables secure exchange and interaction with files, ensuring data confidentiality and integrity.
+SF2 utilizes a "Password" for administrative access to encrypted files. This password can be used alone to access the files, but it is not recommended. Instead, SF2 supports the addition of RSA public keys in the SSH format, allowing secure access to files associated with machines/accounts/users. This cryptographic approach enables secure exchange and interaction with files, ensuring data confidentiality and integrity.
 
 The software is available in both graphical and command-line versions, accommodating different user preferences and environments (non-graphical and scripting purposes).
 

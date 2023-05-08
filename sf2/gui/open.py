@@ -102,7 +102,7 @@ class Open:
     def create_password(self):
         return output.put_column([
             pin.put_input("open_password_infilename", help_text="Enter the input file path here", label="Input encrypted file"), 
-            pin.put_input("open_password_password", "password", help_text="Enter your password here", label="Master Password"),
+            pin.put_input("open_password_password", "password", help_text="Enter your password here", label="Password"),
             pin.put_input("open_password_program", help_text="use {filename} for templating", label="Program"),
             output.put_text("Options"),
             pin.put_radio("open_password_format", ["msgpack", "json"], value="msgpack"),

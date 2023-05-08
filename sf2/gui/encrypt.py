@@ -68,7 +68,7 @@ class Encrypt:
         return output.put_column([
             pin.put_input("encrypt_infilename", help_text="Enter the input file path here", label="Input plaintext file"), 
             pin.put_input("encrypt_outfilename", help_text="Enter the output file path here", label="Output encrypted file"), 
-            pin.put_input("encrypt_password", "password", help_text="Enter your password here", label="Master Password"),
+            pin.put_input("encrypt_password", "password", help_text="Enter your password here", label="Password"),
             pin.put_input("encrypt_password_check", "password", help_text="Enter your password here, again"),
             output.put_text("Options"),
             output.put_row([

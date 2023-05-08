@@ -66,7 +66,7 @@ class New:
     def create(self):
         return output.put_column([
             pin.put_input("new_filename", help_text="Enter the file path here", label="File path"), 
-            pin.put_input("new_password", "password", help_text="Enter your password here", label="Master Password"),
+            pin.put_input("new_password", "password", help_text="Enter your password here", label="Password"),
             pin.put_input("new_password_check", "password", help_text="Enter your password here, again"),
             output.put_text("Options"),
             output.put_row([

@@ -64,7 +64,7 @@ class Convert:
         return output.put_column([
             pin.put_input("convert_infilename", help_text="Enter the input file path here", label="Input plaintext file"), 
             pin.put_input("convert_outfilename", help_text="Enter the output file path here", label="Output encrypted file"), 
-            pin.put_input("convert_password", "password", help_text="Enter your password here", label="Master Password"),
+            pin.put_input("convert_password", "password", help_text="Enter your password here", label="Password"),
             output.put_text("Options"),
             output.put_row([
                 pin.put_checkbox("convert_force",options=["allow overwrite ?"]),

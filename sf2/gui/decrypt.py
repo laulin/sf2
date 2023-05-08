@@ -105,7 +105,7 @@ class Decrypt:
         return output.put_column([
             pin.put_input("decrypt_password_infilename", help_text="Enter the input file path here", label="Input encrypted file"), 
             pin.put_input("decrypt_password_outfilename", help_text="Enter the output file path here", label="Output plaintext file"),
-            pin.put_input("decrypt_password_password", "password", help_text="Enter your password here", label="Master Password"),
+            pin.put_input("decrypt_password_password", "password", help_text="Enter your password here", label="Password"),
             output.put_text("Options"),
             output.put_row([
                 pin.put_checkbox("decrypt_password_force",options=["allow overwrite ?"]),

@@ -98,7 +98,7 @@ class Verify:
     def create_password(self):
         return output.put_column([
             pin.put_input("verify_password_infilename", help_text="Enter the input file path here", label="Input encrypted file"), 
-            pin.put_input("verify_password_password", "password", help_text="Enter your password here", label="Master Password"),
+            pin.put_input("verify_password_password", "password", help_text="Enter your password here", label="Password"),
             output.put_text("Options"),
             pin.put_radio("verify_password_format", ["msgpack", "json"], value="msgpack"),
             output.put_row([
