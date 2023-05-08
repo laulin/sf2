@@ -2,7 +2,6 @@
 
 This software allows you to secure your files and work on them as a team in the cloud. And it's very simple: all you need is an SSH key!
 
-
 ## Why use SF2 ?
 
 * Just secure a file with a password
@@ -34,10 +33,9 @@ If you need multiple encrypted container with the same password, you can add as 
 sf2 new my_container.x foobar.x stuff.x ...
 ```
 
-
 ### Add SSH key
 
-By default, the current user ssh public key is used. Cette opération nécessite de disposer du mot de passe :
+By default, the current user ssh public key is used :
 
 ``` bash
 sf2 ssh add my_container.x
@@ -90,10 +88,82 @@ sf2 ssh rm -a foo@bar my_container.x
 
 ### Encrypt
 
-Sometimes it is necessary to create a storyteller from an existing file and not *ex nihilo* as the new command does: 
+Sometimes it is necessary to create a container from an existing file and not *ex nihilo* as the new command does: 
 
 ``` bash
 sf2 encrypt -i data.txt -o my_container.x
+```
+
+### Decrypt
+
+**WARNING** : this action is dangerous and can lead to data leak.
+
+To extract the information secured in a container to a plain text file, you must do the following:
+
+``` bash
+sf2 decrypt -i my_container.x -o plain.txt
+```
+
+### Desktop application
+
+A graphic version of SF2 is available. It allows to perform all the operations of the CLI version but with a nice interface :
+
+``` bash
+sf2 app
+```
+
+It contains small manual and contextual help.
+
+## Advanced
+
+### Password vs SSH key
+
+Only the 'new', 'encrypt', and 'ssh add' functions require the password. All other functions use SSH keys by default. It is possible to bypass this behavior by adding the '--password' directive to the command. For example, here the "open" function with password :
+
+``` bash
+sf2 open --password -p cat my_container.x
+```
+
+In the context of using the password, the -m option allows you to set the password on the command line (Warning: this can be dangerous). 
+
+By default, only passwords of 12 characters (A-Z, a-z, 0-9, special symbols) are allowed. Functions 'new', 'encrypt', and 'ssh add' will raise an exception if the password is not compliant. Anyway, you can bypass this procetion using "-w" option.
+
+``` bash
+# /!\ This is a very bad idea, for testing purpose only
+sf2 new -m foobar -w my_container.x
+```
+
+### Auth ID and SSH key
+
+As seen in the quickstart, by default the public key add function uses the user's public SSH key (RSA only). It is possible to specify a key (-k), and in this case, the auth id will be that of the key. In both of the previous cases, you can manually change the auth id (-a).
+
+For usage involving decryption with the private key, it is necessary to obtain both the private key and the auth id. For both, the following priority order applies: command parameter, config file (see below), and default value. For the auth_id, the default value is user@machine, and for the private key, /home/user/.ssh/id_rsa is used. If the private key is not found (or is incorrect), an error is raised.
+
+The arguments to define the private key file, the auth id, and the private key password (if it is encrypted) are respectively '-y', '-a', and '-K'.
+
+### Configfile
+
+Similar to SSH and its .ssh directory in the home folder, it is possible to define a config file for sf2: /home/user/.sf2/config.yaml. Each entry is defined by the path of the concerned file and can set the private key (private_key_file), the auth id (auth_id), and the program used to open it (program). Here is an example:
+
+```yaml
+/tmp/encrypted.x:
+  private_key_file : /keys/id_rsa
+  auth_id: test@test
+  # {filename} or [filename] are valid
+  program: nano [filename]
+```
+The "program" parameter is very useful for a straight forward "open" function.
+
+### Container format
+
+By default, container uses mesage pack format. In particular cas, a non binary file can be need. The "--format json" parameter allows do this.
+
+### Legacy format
+
+Currently, SF2 is in version 2.x. The previous version (e.g 1.x) is not directly supported, but it can be converted to 2.x. 
+
+``` bash
+sf2 convert -i version1.x -o version2.x
 ```
 
 ## Understand the behavious
