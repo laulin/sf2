@@ -70,10 +70,10 @@ class SF2:
 
     def verify(self):
         output = 0
-        password = self.get_password()
         for filename in self._args.infilenames:
 
             if self._args.password_method:
+                password = self.get_password()
                 status = self._core.verify(filename, password, self._args.format)
                    
             else:
