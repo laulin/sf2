@@ -49,6 +49,7 @@ class SF2:
             commands[self._args.commands]()
         except Exception as e:
             self._log.critical(str(e))
+            sys.exit(-1)
 
     def encrypt(self):
         password = self.get_or_create_password()
@@ -156,7 +157,6 @@ class SF2:
             
     def get_or_create_password(self):
         if not self._args.password:
-            print("We recommand min 12 chars with a-z, A-Z, 0-9 and special symbol")
             password = getpass("Password : ")
             password_copy = getpass("Confirm password : ")
             if password != password_copy:
