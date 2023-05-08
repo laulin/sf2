@@ -129,9 +129,12 @@ class SF2:
                 print(user, pk)
 
     def new(self):
+        if len(self._args.infilenames) == 0:
+            raise Exception("At least one file must be provided")
+        
         password = self.get_or_create_password()
         self.check_password_strength(password)
-        
+                
         for filename in self._args.infilenames:
             self._core.new(filename, password, self._args.force, self._args.format)
 
