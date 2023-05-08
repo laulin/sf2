@@ -49,7 +49,7 @@ class ContainerBase:
         """
         return base64.urlsafe_b64decode(data)
 
-    def _create_salt(self)->bytes:
+    def _create_master_data_key(self)->bytes:
         """
         It creates a random salt of size 16 bytes.
         :return: A random byte string of length SALT_SIZE
@@ -151,8 +151,8 @@ class ContainerBase:
         if not force and self._support.is_exist():
             raise Exception(f"{self._support.get_filename()} already exists")
         
-        master_iv = self._create_salt()
-        master_data_key = self._create_iv()
+        master_iv = self._create_iv()
+        master_data_key = self._create_master_data_key()
         master_key = self.kdf(master_iv, password, _iterations)
 
         fernet_master_data_key = Fernet(master_key)
