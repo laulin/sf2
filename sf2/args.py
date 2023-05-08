@@ -20,17 +20,18 @@ Supported by Spartan Conseil
 
 def create_exclusive_secret(subparser):
     secret_choice = subparser.add_mutually_exclusive_group(required=False)
-    secret_choice.add_argument('--master-password', action='store_true', default=False, dest='master_password', help='Use a master password parameters. Will call a prompt.')
-    secret_choice.add_argument('--ssh-key', action='store_true', default=True, dest="ssh_key", help='Provide path a secret ssh key. If no path is provided, use default SSH key. This is the default behaviour')
+    secret_choice.add_argument('--password', action='store_true', default=False, dest='password_method', help='Use password method. Will call a prompt if -m is not called')
+    secret_choice.add_argument('--ssh', action='store_true', default=True, dest="ssh_method", help='Provide path a secret ssh key. If no path is provided, use default SSH key. This is the default behaviour')
 
     subparser.add_argument('-a', "--auth_id", required=False, dest='auth_id', help='Select the authentication id, need for SSH')
     subparser.add_argument('-K', action='store', required=False, dest="private_key_password", help='Provide the password to unlock the private key')
     subparser.add_argument('-y', action='store', required=False, dest="private_key_file", help='Provide the private key')
 
-    add_master_password(subparser)
+    add_password(subparser)
 
-def add_master_password(subparser):
-    subparser.add_argument('-m', action='store', required=False, dest="master_password_value", help='Provide the master password')
+def add_password(subparser):
+    subparser.add_argument('-m', action='store', required=False, dest="password", help='Provide the password')
+    subparser.add_argument('-w', action='store_true', required=False, dest="allow_weak_password", default=False, help='Allow weak_password')
 
 def add_log(subparser):
     subparser.add_argument("-v", "--verbose", dest="verbosity", action="count", default=0,
@@ -63,7 +64,7 @@ def get_args(cli_args=None):
 
     # encrypt
     encrypt_parser = subparsers.add_parser('encrypt', help='Encrypt a file')
-    add_master_password(encrypt_parser)
+    add_password(encrypt_parser)
     add_log(encrypt_parser)
     add_io(encrypt_parser)
     add_format(encrypt_parser)
@@ -80,7 +81,7 @@ def get_args(cli_args=None):
     convert_parser = subparsers.add_parser('convert', help='Convert v1 to v2 file')
     add_log(convert_parser)
     add_io(convert_parser)
-    add_master_password(convert_parser)
+    add_password(convert_parser)
     add_format(convert_parser)
 
     # open
@@ -107,7 +108,7 @@ def get_args(cli_args=None):
     add_log(add_ssh_parser)
     add_ssh_parser.add_argument("-k", '--public', required=False, default=None, dest='public_key_file', help='Select the public key. Default is ~/{curent_user}/.ssh/id_rsa.pub')
     add_ssh_parser.add_argument("-a", '--auth-id', required=False, default=None, dest='auth_id', help='Define the authentification id, default is the one in the public key')
-    add_master_password(add_ssh_parser)
+    add_password(add_ssh_parser)
     add_format_and_tail_file(add_ssh_parser)
     # ssh remove
     rm_ssh_parser = ssh_subparser.add_parser('rm',  help='Remove an ssh key from a container')
@@ -122,7 +123,7 @@ def get_args(cli_args=None):
 
     # new
     new_parser = subparsers.add_parser('new', help='Create an empty encrypted container')
-    add_master_password(new_parser)
+    add_password(new_parser)
     new_parser.add_argument("-f", "--force", action='store_true', dest='force', help="Force the output overwrite")
     add_log(new_parser)
     add_format_and_tail_file(new_parser)

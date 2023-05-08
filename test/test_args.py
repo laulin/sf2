@@ -22,7 +22,7 @@ class TestArgs(unittest.TestCase):
 
     def test_encrypt_format(self):
         args = get_args(["encrypt", "--format", "json", "-m", "foobar", "-i", "in.txt", "-o", "out.x"])
-        results = [args.infilename, args.outfilename, args.format, args.master_password_value]
+        results = [args.infilename, args.outfilename, args.format, args.password]
         expected = ["in.txt", "out.x", "json", "foobar"]
 
         self.assertEqual(results, expected)
@@ -30,29 +30,29 @@ class TestArgs(unittest.TestCase):
     # decrypt
 
     def test_decrypt_mk(self):
-        args = get_args(["decrypt", "--master-password", "-i", "in.txt", "-o", "out.x"])
-        results = [args.infilename, args.outfilename, args.master_password, args.ssh_key]
+        args = get_args(["decrypt", "--password", "-i", "in.txt", "-o", "out.x"])
+        results = [args.infilename, args.outfilename, args.password_method, args.ssh_method]
         expected = ["in.txt", "out.x", True, False]
 
         self.assertEqual(results, expected)
 
     def test_decrypt_mk_with_master_password(self):
-        args = get_args(["decrypt", "--master-password", "-m", "foobar", "-i", "in.txt", "-o", "out.x"])
-        results = [args.infilename, args.outfilename, args.master_password, args.master_password_value]
-        expected = ["in.txt", "out.x", True, "foobar"]
+        args = get_args(["decrypt", "--password", "-m", "foobar", "-w", "-i", "in.txt", "-o", "out.x"])
+        results = [args.infilename, args.outfilename, args.password_method, args.password, args.allow_weak_password]
+        expected = ["in.txt", "out.x", True, "foobar", True]
 
         self.assertEqual(results, expected)
 
     def test_decrypt_ssh_key_no_file(self):
-        args = get_args(["decrypt", "--ssh-key", "-i", "in.txt", "-o", "out.x"])
-        results = [args.infilename, args.outfilename, args.ssh_key]
+        args = get_args(["decrypt", "--ssh", "-i", "in.txt", "-o", "out.x"])
+        results = [args.infilename, args.outfilename, args.ssh_method]
         expected = ["in.txt", "out.x", True]
 
         self.assertEqual(results, expected)
 
     def test_decrypt_ssh_key_with_file(self):
-        args = get_args(["decrypt", "--ssh-key", "-y", "/home/foo/.ssh/id_rsa", "-K", "foobar", "-i", "in.txt", "-o", "out.x"])
-        results = [args.infilename, args.outfilename, args.ssh_key, args.private_key_file, args.private_key_password]
+        args = get_args(["decrypt", "--ssh", "-y", "/home/foo/.ssh/id_rsa", "-K", "foobar", "-i", "in.txt", "-o", "out.x"])
+        results = [args.infilename, args.outfilename, args.ssh_method, args.private_key_file, args.private_key_password]
         expected = ["in.txt", "out.x", True, "/home/foo/.ssh/id_rsa", "foobar"]
 
         self.assertEqual(results, expected)
@@ -66,22 +66,22 @@ class TestArgs(unittest.TestCase):
 
     # # # open
     def test_open_mk(self):
-        args = get_args(["open", "--master-password", "--program", "nano",  "out.x"]) 
-        results = [args.commands, args.infilenames, args.master_password, args.program]
+        args = get_args(["open", "--password", "--program", "nano",  "out.x"]) 
+        results = [args.commands, args.infilenames, args.password_method, args.program]
         expected = ['open', ['out.x'], True, 'nano']
 
         self.assertEqual(results, expected)
 
     def test_open_ssh_key_no_file(self):
-        args = get_args(["open", "--ssh-key", "--program", "nano",  "out.x"]) 
-        results = [args.commands, args.infilenames, args.ssh_key, args.program, args.private_key_file]
+        args = get_args(["open", "--ssh", "--program", "nano",  "out.x"]) 
+        results = [args.commands, args.infilenames, args.ssh_method, args.program, args.private_key_file]
         expected = ['open', ['out.x'], True, 'nano', None]
 
         self.assertEqual(results, expected)
 
     def test_open_ssh_key_with_file(self):
-        args = get_args(["open", "--ssh-key", "-y", ".ssh/id_rsa", "--program", "nano",  "out.x"]) 
-        results = [args.commands, args.infilenames, args.ssh_key, args.program, args.private_key_file]
+        args = get_args(["open", "--ssh", "-y", ".ssh/id_rsa", "--program", "nano",  "out.x"]) 
+        results = [args.commands, args.infilenames, args.ssh_method, args.program, args.private_key_file]
         expected = ['open', ['out.x'], True, 'nano', ".ssh/id_rsa"]
 
         self.assertEqual(results, expected)
@@ -89,29 +89,29 @@ class TestArgs(unittest.TestCase):
     # # Currently disable, need to implement configuration
     # # def test_open_without_args(self):
     # #     args = get_args(["open", "out.x"]) 
-    # #     results = [args.commands, args.infilename, args.master_password, args.program, args.ssh_key]
+    # #     results = [args.commands, args.infilename, args.password_method, args.program, args.ssh_method]
     # #     expected = ['open', ['out.x'], False, None, None]
 
     # #     self.assertEqual(results, expected)
 
     # verify
     def test_verify_mk(self):
-        args = get_args(["verify", "--master-password",  "out.x"]) 
-        results = [args.commands, args.infilenames, args.master_password]
+        args = get_args(["verify", "--password",  "out.x"]) 
+        results = [args.commands, args.infilenames, args.password_method]
         expected = ['verify', ['out.x'], True]
 
         self.assertEqual(results, expected)
 
     def test_verify_ssh_key_no_file(self):
-        args = get_args(["verify", "--ssh-key", "out.x"]) 
-        results = [args.commands, args.infilenames, args.ssh_key]
+        args = get_args(["verify", "--ssh", "out.x"]) 
+        results = [args.commands, args.infilenames, args.ssh_method]
         expected = ['verify', ['out.x'], True]
 
         self.assertEqual(results, expected)
 
     def test_verify_ssh_key_with_file(self):
-        args = get_args(["verify", "--ssh-key", "-y", ".ssh/id_rsa", "out.x"]) 
-        results = [args.commands, args.infilenames, args.ssh_key, args.private_key_file]
+        args = get_args(["verify", "--ssh", "-y", ".ssh/id_rsa", "out.x"]) 
+        results = [args.commands, args.infilenames, args.ssh_method, args.private_key_file]
         expected = ['verify', ['out.x'], True, ".ssh/id_rsa"]
 
         self.assertEqual(results, expected)
