@@ -20,7 +20,7 @@ class AuthSign:
     IV_SIZE = 32
     KDF_LENGTH = 32
     KDF_ITERATION = 48000
-    def __init__(self, container:dict, _iterations=None) -> None:
+    def __init__(self, container:dict, _iterations:int=None) -> None:
         self._container = container
 
         if _iterations is None:
