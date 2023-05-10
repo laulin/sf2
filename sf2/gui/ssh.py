@@ -85,15 +85,20 @@ class SSH:
         except Exception as e:
             output.toast(f"{e}", color=RED)
             return
+        
+        if len(pin.pin["ssh_rm_password"]) == 0:
+            output.toast("Empty password is not allowed", color=RED)
+            return
             
         support_format = pin.pin["ssh_rm_format"]
         
         core = CoreWithEnvironment()
+        password = pin.pin["ssh_rm_password"]
         auth_id = pin.pin["ssh_rm_auth_id"]
         try:
-            core.ssh_rm(infilename, auth_id, support_format, self._config_file)
+            core.ssh_rm(infilename, password, auth_id, support_format, self._config_file)
         except Exception as e:
-            output.toast(f"failed to add ssh public key ({e})", color=RED)
+            output.toast(f"failed to remove ssh public key ({e})", color=RED)
             return
 
         output.toast("Your public key was remove", color=BLUE)
@@ -155,7 +160,8 @@ class SSH:
     
     def create_rm(self):
         return output.put_column([
-            pin.put_input("ssh_rm_filename", help_text="Enter the entr file path here", label="Input encrypted file"), 
+            pin.put_input("ssh_rm_filename", help_text="Enter the entr file path here", label="Input encrypted file"),
+            pin.put_input("ssh_rm_password", "password", help_text="Enter the password here", label="Password"),
             pin.put_input("ssh_rm_auth_id", help_text="Enter your auth_id here", label="Auth ID"), 
             output.put_text("Options"),
             pin.put_radio("ssh_rm_format", ["msgpack", "json"], value="msgpack"),
@@ -193,5 +199,3 @@ class SSH:
                 {'title': 'List', 'content': self.create_ls()},
                 
              ])
-    # {'title': 'Remove', 'content': self.create_remove()},
-    # {'title': 'List', 'content': self.create_list()}
