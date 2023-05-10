@@ -38,7 +38,7 @@ class TestAuthSign(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_sign_and_verify(self):
-        MASTER_KEY = base64.urlsafe_b64encode(b"0123456789abcdef0123456789abcdef")
+        PASSWORD = "0123456789abcdef0123456789abcdef"
 
         container = {
             "auth":{
@@ -51,9 +51,9 @@ class TestAuthSign(unittest.TestCase):
             }
         }
 
-        auth_sign = AuthSign(container)
-        auth_sign.add_keys(MASTER_KEY)
-        auth_sign.sign(MASTER_KEY)
+        auth_sign = AuthSign(container, _iterations=100)
+        auth_sign.add_keys(PASSWORD)
+        auth_sign.sign(PASSWORD)
         auth_sign.verify()
 
 
