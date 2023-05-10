@@ -1,6 +1,8 @@
 import unittest
 import base64
 
+from cryptography.exceptions import InvalidSignature
+
 from sf2.auth_sign import AuthSign
 
 class TestAuthSign(unittest.TestCase):
@@ -56,5 +58,28 @@ class TestAuthSign(unittest.TestCase):
         auth_sign.sign(PASSWORD)
         auth_sign.verify()
 
+    def test_sign_and_verify_KO(self):
+        PASSWORD = "0123456789abcdef0123456789abcdef"
+
+        container = {
+            "auth":{
+                "user":{
+                    "ssh":{
+                        "foo@bar":"test"
+                    }
+                },
+                "stuff": b"xyz"
+            }
+        }
+
+        auth_sign = AuthSign(container, _iterations=100)
+        auth_sign.add_keys(PASSWORD)
+        signed = auth_sign.sign(PASSWORD)
+
+        # transform test to tests to check the signature
+        signed["auth"]["user"]["ssh"]["foo@bar"]="tests"
+
+        auth_sign = AuthSign(signed, _iterations=100)
+        self.assertRaises(InvalidSignature, auth_sign.verify)
 
 
