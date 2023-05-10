@@ -27,7 +27,7 @@ At first you need to install SF2. You have two options :
 sf2 new my_container.x
 ```
 
-If you need multiple encrypted container with the same password, you can add as many files as you want :
+If you need multiple encrypted container with the same password (strong), you can add as many files as you want :
 
 ``` bash
 sf2 new my_container.x foobar.x stuff.x ...
@@ -86,6 +86,8 @@ It is possible to remove a public key from the auth id :
 sf2 ssh rm -a foo@bar my_container.x
 ```
 
+The password will be asked. If you need it, you can use "-m" option.
+
 ### Encrypt
 
 Sometimes it is necessary to create a container from an existing file and not *ex nihilo* as the new command does: 
@@ -118,13 +120,13 @@ It contains small manual and contextual help.
 
 ### Password vs SSH key
 
-Only the 'new', 'encrypt', and 'ssh add' functions require the password. All other functions use SSH keys by default. It is possible to bypass this behavior by adding the '--password' directive to the command. For example, here the "open" function with password :
+Only the 'new', 'encrypt', 'ssh add' and 'ssh rm' functions require the password. All other functions use SSH keys by default. It is possible to bypass this behavior by adding the '--password' directive to the command. For example, here the "open" function with password :
 
 ``` bash
 sf2 open --password -p cat my_container.x
 ```
 
-In the context of using the password, the -m option allows you to set the password on the command line (Warning: this can be dangerous). 
+In the context of using the password, the "-m" option allows you to set the password on the command line (Warning: this can be dangerous). 
 
 By default, only passwords of 12 characters (A-Z, a-z, 0-9, special symbols) are allowed. Functions 'new', 'encrypt', and 'ssh add' will raise an exception if the password is not compliant. Anyway, you can bypass this procetion using "-w" option.
 
@@ -132,6 +134,8 @@ By default, only passwords of 12 characters (A-Z, a-z, 0-9, special symbols) are
 # /!\ This is a very bad idea, for testing purpose only
 sf2 new -m foobar -w my_container.x
 ```
+
+**The password must be taken seriously as it is the authentication method for the administration of the container (a kind of root role).** You can't do any administrative action with SSH key.
 
 ### Auth ID and SSH key
 
@@ -176,7 +180,9 @@ Under the hood, symmetric encryption (and more) is achieved by the Fernet algori
 
 The data is encrypted with a first key (master data key) of 32 bits. This key is itself encrypted with a second key (master key) of 32 bits, resulting from the derivation of the password. This derivation uses a key derivation function (KDF, SHA256) with 32 bits of IV and 48000 iterations.
 
-This double stage approach allows the second part, which is the use of asymmetric RSA keys in SSH format. With the password, we obtain the "master key". The latter can then be encrypted with the public key and only decrypted with the private key. As many public keys as necessary can be added to the encrypted container.
+This double stage approach allows the second part, which is the use of asymmetric RSA keys in SSH format. With the password, we obtain the "master key". The latter can then be encrypted with the public key and only decrypted with the private key. As many public keys as necessary can be added to the encrypted container. This double stage also permit to use a different key for private key used to signe the *auth* section of a container.
+
+The data used for authentication (section "auth") is signed using the elliptic curve ED25519. 
 
 Access to a shared file is a complex task. It is necessary to lock the file in writing to avoid conflicts between users. We have used the flufl.lock library which solves this problem. It works locally but also via NFS.
 
@@ -186,11 +192,11 @@ It is possible to open the file through a command (see open). This opening is do
 
 The first recommendation is to use a strong password. Basically, SF2 forces you to be serious about this point but this may not be enough. Always keep in mind that the security of a symmetric system relies mainly on the security of the secret.
 
-That's why it is recommended to use only SSH keys. Indeed, setting up a strong and unique password for each file can be very hard to type. On the other hand, the use of your SSH key is simple and can even be transparent.
+That's why it is recommended to use only SSH keys for data access. Indeed, setting up a strong and unique password for each file can be very hard to type. On the other hand, the use of your SSH key is simple and can even be transparent.
 
 As said above, security is based on the password. It is not recommended to use the "-m" option to put the password in the command, which would allow it to be leaked via history or by listing processes.
 
-Finally you should only add SSH keys from trusted machines/persons. Indeed with his private key, a malicious person can recover the master key and add other keys. So be careful.
+Finally you should only add SSH keys from trusted machines/persons. Indeed with his private key, a malicious person can recover the master key. So be careful.
 
 The use of the "decrypt" function should only be done for a particular use and in a secure environment. To read or write data protected by the container, you must use the "open" function. It prevents any unencrypted data from being written to the hard disk. By not respecting this, you expose yourself to a data leakage (compromised machine, disk forensic, etc).
 
