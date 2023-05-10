@@ -179,9 +179,9 @@ class ContainerBase:
 
         self.set_master_key_signature(container, master_key)
 
-        auth_sign = AuthSign(container)
-        auth_sign.add_keys(master_key)
-        container = auth_sign.sign(master_key)
+        auth_sign = AuthSign(container, _iterations=_iterations)
+        auth_sign.add_keys(password)
+        container = auth_sign.sign(password)
         
         self.dump(container)
 
@@ -344,8 +344,11 @@ class ContainerBase:
     def dump(self, container:dict)->None:
         self._support.dump(container)
 
-    def sign_and_dump(self, container:dict, master_key:bytes)->bytes:
-        auth_sign = AuthSign(container)
-        container = auth_sign.sign(master_key)
+    def sign_and_dump(self, container:dict, password:str, _iterations:int=None)->None:
+        if _iterations is None:
+            _iterations = ContainerBase.KDF_ITERATION
+
+        auth_sign = AuthSign(container, _iterations)
+        container = auth_sign.sign(password)
 
         self.dump(container)

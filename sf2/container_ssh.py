@@ -96,7 +96,7 @@ class ContainerSSH():
             "encrypted_master_key" : encrypted_master_key,
         }
 
-        self._base.sign_and_dump(container, master_key)
+        self._base.sign_and_dump(container, password, _iterations)
 
     def remove_ssh_key(self, password:str, auth_id:str, _iterations:int=None)->None:
         """
@@ -120,7 +120,7 @@ class ContainerSSH():
         else:
             raise Exception(f"user {auth_id} doesn't exists")
             
-        self._base.sign_and_dump(container, master_key)
+        self._base.sign_and_dump(container, password, _iterations)
 
     def list_ssh_key(self)->dict:       
         """
