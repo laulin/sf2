@@ -120,8 +120,9 @@ class SF2:
             self._core.ssh_add(filename, password, self._args.public_key_file, self._args.auth_id, self._args.format)
 
     def ssh_rm(self):
+        password = self.get_password()
         for filename in self._args.infilenames:
-            self._core.ssh_rm(filename, self._args.auth_id, self._args.format, self._args.config_file)
+            self._core.ssh_rm(filename, password, self._args.auth_id, self._args.format, self._args.config_file)
 
     def ssh_ls(self):
         for filename in self._args.infilenames:
