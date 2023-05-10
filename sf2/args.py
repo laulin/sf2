@@ -114,7 +114,7 @@ def get_args(cli_args=None):
     rm_ssh_parser = ssh_subparser.add_parser('rm',  help='Remove an ssh key from a container')
     add_log(rm_ssh_parser)
     rm_ssh_parser.add_argument("-a", '--auth-id', required=False, default=None, dest='auth_id', help='Define the authentification id, default is the one in the public key')
-    add_password(add_ssh_parser)
+    rm_ssh_parser.add_argument('-m', action='store', required=False, dest="password", help='Provide the password')
     add_configFile(rm_ssh_parser)
     add_format_and_tail_file(rm_ssh_parser)
     # ssh ls
