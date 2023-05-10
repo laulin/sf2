@@ -67,10 +67,10 @@ class CoreWithEnvironment:
         
         return self._core.ssh_add(filename, password, public_key_file, auth_id, support_format)
 
-    def ssh_rm(self, filename:str, auth_id:str=None, support_format:str="msgpack", config_file:str=None):
+    def ssh_rm(self, filename:str, password:str, auth_id:str=None, support_format:str="msgpack", config_file:str=None):
         config_file = self.get_config_file(config_file)
         _, auth_id = self.get_secrets(filename, config_file, "no_key", auth_id)
-        return self._core.ssh_rm(filename, auth_id, support_format)
+        return self._core.ssh_rm(filename, password, auth_id, support_format)
 
     def ssh_ls(self, filename:str, support_format:str="msgpack"):
         return self._core.ssh_ls(filename, support_format)

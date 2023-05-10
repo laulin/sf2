@@ -16,18 +16,18 @@ AUTH_ID = "test@test"
 PASSWORD = "password"
 
 SOURCE = os.path.join(TEST_DIR, "source.txt")
-ENCRYPTED = os.path.join(TEST_DIR, "encrypted.x")
+ENCRYPTED_FILE = os.path.join(TEST_DIR, "encrypted.x")
 OUTPUT = os.path.join(TEST_DIR, "output.txt")
 
 CUSTOM_CONFIG_FILE = f"""
-{ENCRYPTED}:
+{ENCRYPTED_FILE}:
   private_key_file : {CUSTOM_PRIVATE_KEY}
   auth_id: foo@bar
   program: cat [filename] > {OUTPUT}
 """
 
 CONFIG_FILE = f"""
-{ENCRYPTED}:
+{ENCRYPTED_FILE}:
   private_key_file : {PRIVATE_KEY}
   auth_id: test@test
   program: cat [filename] > {OUTPUT}
@@ -50,7 +50,7 @@ class TestCore(unittest.TestCase):
             f.write(CUSTOM_CONFIG_FILE)
 
         core = CoreWithEnvironment(_iterations=100)
-        core.encrypt(SOURCE, ENCRYPTED, PASSWORD)
+        core.encrypt(SOURCE, ENCRYPTED_FILE, PASSWORD)
 
 
     def test_ssh_add(self):
@@ -59,8 +59,8 @@ class TestCore(unittest.TestCase):
                                    default_private_key=PRIVATE_KEY, 
                                    default_auth_id="test@test", 
                                    default_config_file=CONFIG_FILE_PATH)
-        core.ssh_add(ENCRYPTED, PASSWORD)
-        results = core.ssh_ls(ENCRYPTED)
+        core.ssh_add(ENCRYPTED_FILE, PASSWORD)
+        results = core.ssh_ls(ENCRYPTED_FILE)
         auth_id = results[0][0]
 
         expected = "test@test"
@@ -72,8 +72,8 @@ class TestCore(unittest.TestCase):
                                    default_private_key=PRIVATE_KEY, 
                                    default_auth_id="test@test", 
                                    default_config_file=CONFIG_FILE_PATH)
-        core.ssh_add(ENCRYPTED, PASSWORD, CUSTOM_PUBLIC_KEY)
-        results = core.ssh_ls(ENCRYPTED)
+        core.ssh_add(ENCRYPTED_FILE, PASSWORD, CUSTOM_PUBLIC_KEY)
+        results = core.ssh_ls(ENCRYPTED_FILE)
         auth_id = results[0][0]
 
         expected = "foo@bar"
@@ -85,8 +85,8 @@ class TestCore(unittest.TestCase):
                                    default_private_key=PRIVATE_KEY, 
                                    default_auth_id="test@test", 
                                    default_config_file=CONFIG_FILE_PATH)
-        core.ssh_add(ENCRYPTED, PASSWORD, CUSTOM_PUBLIC_KEY, "xx@yy")
-        results = core.ssh_ls(ENCRYPTED)
+        core.ssh_add(ENCRYPTED_FILE, PASSWORD, CUSTOM_PUBLIC_KEY, "xx@yy")
+        results = core.ssh_ls(ENCRYPTED_FILE)
         auth_id = results[0][0]
 
         expected = "xx@yy"
@@ -100,8 +100,8 @@ class TestCore(unittest.TestCase):
                                    default_auth_id="test@test", 
                                    default_config_file=CONFIG_FILE_PATH)
 
-        core.ssh_add(ENCRYPTED, PASSWORD)
-        core.ssh_rm(ENCRYPTED)
+        core.ssh_add(ENCRYPTED_FILE, PASSWORD)
+        core.ssh_rm(ENCRYPTED_FILE, PASSWORD)
 
     def test_ssh_rm_custom_1(self):
 
@@ -111,8 +111,8 @@ class TestCore(unittest.TestCase):
                                    default_auth_id="test@test", 
                                    default_config_file=CONFIG_FILE_PATH)
 
-        core.ssh_add(ENCRYPTED, PASSWORD, CUSTOM_PUBLIC_KEY)
-        core.ssh_rm(ENCRYPTED, "foo@bar")
+        core.ssh_add(ENCRYPTED_FILE, PASSWORD, CUSTOM_PUBLIC_KEY)
+        core.ssh_rm(ENCRYPTED_FILE, PASSWORD, "foo@bar")
 
     def test_ssh_rm_custom_2(self):
 
@@ -122,8 +122,8 @@ class TestCore(unittest.TestCase):
                                    default_auth_id="test@test", 
                                    default_config_file=CONFIG_FILE_PATH)
 
-        core.ssh_add(ENCRYPTED, PASSWORD, CUSTOM_PUBLIC_KEY, "xx@yy")
-        core.ssh_rm(ENCRYPTED, "xx@yy")
+        core.ssh_add(ENCRYPTED_FILE, PASSWORD, CUSTOM_PUBLIC_KEY, "xx@yy")
+        core.ssh_rm(ENCRYPTED_FILE, PASSWORD, "xx@yy")
 
     def test_open_ssh(self):
 
@@ -133,9 +133,9 @@ class TestCore(unittest.TestCase):
                                    default_auth_id="test@test", 
                                    default_config_file=CONFIG_FILE_PATH)
 
-        core.ssh_add(ENCRYPTED, PASSWORD)
+        core.ssh_add(ENCRYPTED_FILE, PASSWORD)
 
-        core.open_ssh(ENCRYPTED, config_file=CONFIG_FILE_PATH)
+        core.open_ssh(ENCRYPTED_FILE, config_file=CONFIG_FILE_PATH)
         
         with open(OUTPUT) as f:
             result = f.read()
@@ -151,9 +151,9 @@ class TestCore(unittest.TestCase):
                                    default_auth_id="test@test", 
                                    default_config_file=CONFIG_FILE_PATH)
 
-        core.ssh_add(ENCRYPTED, PASSWORD, CUSTOM_PUBLIC_KEY) # implicit auth_id from Pk
+        core.ssh_add(ENCRYPTED_FILE, PASSWORD, CUSTOM_PUBLIC_KEY) # implicit auth_id from Pk
 
-        core.open_ssh(ENCRYPTED, config_file=CUSTOM_CONFIG_FILE_PATH)
+        core.open_ssh(ENCRYPTED_FILE, config_file=CUSTOM_CONFIG_FILE_PATH)
         
         with open(OUTPUT) as f:
             result = f.read()
@@ -169,9 +169,9 @@ class TestCore(unittest.TestCase):
                                    default_auth_id="test@test", 
                                    default_config_file=CONFIG_FILE_PATH)
 
-        core.ssh_add(ENCRYPTED, PASSWORD)
+        core.ssh_add(ENCRYPTED_FILE, PASSWORD)
 
-        core.decrypt_ssh(ENCRYPTED, OUTPUT, config_file=CONFIG_FILE_PATH)
+        core.decrypt_ssh(ENCRYPTED_FILE, OUTPUT, config_file=CONFIG_FILE_PATH)
         
         with open(OUTPUT) as f:
             result = f.read()
@@ -187,9 +187,9 @@ class TestCore(unittest.TestCase):
                                    default_auth_id="test@test", 
                                    default_config_file=CONFIG_FILE_PATH)
 
-        core.ssh_add(ENCRYPTED, PASSWORD, CUSTOM_PUBLIC_KEY) # implicit auth_id from Pk
+        core.ssh_add(ENCRYPTED_FILE, PASSWORD, CUSTOM_PUBLIC_KEY) # implicit auth_id from Pk
 
-        core.decrypt_ssh(ENCRYPTED, OUTPUT, config_file=CUSTOM_CONFIG_FILE_PATH)
+        core.decrypt_ssh(ENCRYPTED_FILE, OUTPUT, config_file=CUSTOM_CONFIG_FILE_PATH)
         
         with open(OUTPUT) as f:
             result = f.read()
@@ -205,9 +205,9 @@ class TestCore(unittest.TestCase):
                                    default_auth_id="test@test", 
                                    default_config_file=CONFIG_FILE_PATH)
 
-        core.ssh_add(ENCRYPTED, PASSWORD)
+        core.ssh_add(ENCRYPTED_FILE, PASSWORD)
 
-        result = core.verify_ssh(ENCRYPTED, config_file=CONFIG_FILE_PATH)
+        result = core.verify_ssh(ENCRYPTED_FILE, config_file=CONFIG_FILE_PATH)
         self.assertTrue(result)
 
     def test_verify_ssh_custom(self):
@@ -218,9 +218,9 @@ class TestCore(unittest.TestCase):
                                    default_auth_id="test@test", 
                                    default_config_file=CONFIG_FILE_PATH)
 
-        core.ssh_add(ENCRYPTED, PASSWORD, CUSTOM_PUBLIC_KEY) # implicit auth_id from Pk
+        core.ssh_add(ENCRYPTED_FILE, PASSWORD, CUSTOM_PUBLIC_KEY) # implicit auth_id from Pk
 
-        result = core.verify_ssh(ENCRYPTED, config_file=CUSTOM_CONFIG_FILE_PATH)
+        result = core.verify_ssh(ENCRYPTED_FILE, config_file=CUSTOM_CONFIG_FILE_PATH)
         self.assertTrue(result)
 
     

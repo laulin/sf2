@@ -11,6 +11,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.exceptions import InvalidSignature
 
 from sf2.cipher import Cipher
+from sf2.auth_sign import AuthSign
 
 
 class ContainerBase:
@@ -128,6 +129,7 @@ class ContainerBase:
         generated_signature = hmac.finalize()
 
         if signature != generated_signature:
+            self._log.debug(f"signature is {generated_signature}, expected is {signature}")
             raise InvalidSignature("Master key is invalid")
 
 
@@ -167,14 +169,21 @@ class ContainerBase:
             "auth" : {
                 "master_iv" : master_iv,
                 "encrypted_master_data_key" : encrypted_master_data_key,
-                "users":{}
+                "users":{},
+                "challenge":None,
+                "signature":None
+
             },
             "data" : encrypted_data
         }
 
         self.set_master_key_signature(container, master_key)
+
+        auth_sign = AuthSign(container)
+        auth_sign.add_keys(master_key)
+        container = auth_sign.sign(master_key)
         
-        self._support.dump(container)
+        self.dump(container)
 
         self._log.info(f"Creation of {self._support.get_filename()}")
 
@@ -274,7 +283,11 @@ class ContainerBase:
         :return: The plain data.
         """
         
-        container = self._support.load()
+        container = self.load()
+
+        # Check if the auth section was not modifier
+        auth_sign = AuthSign(container)
+        auth_sign.verify()
 
         master_data_key = self.get_master_data_key(container, password, _iterations)
 
@@ -293,13 +306,17 @@ class ContainerBase:
         :type _iterations: int
         """
 
-        container = self._support.load()
+        container = self.load()
+
+        # Check if the auth section was not modifier
+        auth_sign = AuthSign(container)
+        auth_sign.verify()
 
         master_data_key = self.get_master_data_key(container, password, _iterations)
 
         self.set_plain_data(container, data, master_data_key)
 
-        self._support.dump(container)
+        self.dump(container)
 
 
     def convert_v1_to_v2(self, password:str, _iterations:int=None):
@@ -326,3 +343,9 @@ class ContainerBase:
     
     def dump(self, container:dict)->None:
         self._support.dump(container)
+
+    def sign_and_dump(self, container:dict, master_key:bytes)->bytes:
+        auth_sign = AuthSign(container)
+        container = auth_sign.sign(master_key)
+
+        self.dump(container)

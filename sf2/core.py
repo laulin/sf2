@@ -99,16 +99,18 @@ class Core:
         container = ContainerSSH(base)
         container.add_ssh_key(password, public_key_file, auth_id, self._iterations)
 
-    def ssh_rm(self, filename:str, auth_id:str=None, support_format:str="msgpack"):
+    def ssh_rm(self, filename:str, password:str, auth_id:str=None, support_format:str="msgpack"):
         auth_id = self.get_auth_id(auth_id)
         support = self.get_support(filename, support_format)
-        container = ContainerSSH(support)
-        container.remove_ssh_key(auth_id)
+        base = ContainerBase(support)
+        container = ContainerSSH(base)
+        container.remove_ssh_key(password, auth_id, self._iterations)
 
     def ssh_ls(self, filename:str, support_format:str="msgpack"):
         output = list()
         support = self.get_support(filename, support_format)
-        container = ContainerSSH(support)
+        base = ContainerBase(support)
+        container = ContainerSSH(base)
         for user, pk in container.list_ssh_key().items():
             output.append((user, pk))
 

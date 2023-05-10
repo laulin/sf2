@@ -55,17 +55,16 @@ class TestContainerSSH(unittest.TestCase):
         self.assertEqual(results, expected)
 
     def test_remove_ssh_key_ok(self):
-        
         self.base.create(SECRET, False, _iterations=ITERATIONS)
         self.c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, _iterations=ITERATIONS)
-        self.c.remove_ssh_key("test@test")
+        self.c.remove_ssh_key(SECRET, "test@test", _iterations=ITERATIONS)
 
     def test_remove_ssh_key_ko(self):
         
         self.base.create(SECRET, False, _iterations=ITERATIONS)
         
         try:
-            self.c.remove_ssh_key("test@test")
+            self.c.remove_ssh_key(SECRET, "test@test", _iterations=ITERATIONS)
             self.assertTrue(False)
         except:
             pass

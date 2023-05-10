@@ -1,5 +1,5 @@
 import logging
-
+from pprint import pprint
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet
@@ -8,14 +8,14 @@ from cryptography.hazmat.primitives.serialization import load_ssh_public_key
 from cryptography.hazmat.primitives.serialization import load_ssh_private_key
 from cryptography.hazmat.primitives.asymmetric import padding
 
-
+from sf2.container_base import ContainerBase
 
 class ContainerSSH():
     """
     Add support of SSH keys.
     """
 
-    def __init__(self, base) -> None:
+    def __init__(self, base:ContainerBase) -> None:
         self._base = base
         self._log = logging.getLogger(f"{self.__class__.__name__}")
 
@@ -96,9 +96,9 @@ class ContainerSSH():
             "encrypted_master_key" : encrypted_master_key,
         }
 
-        self._base.dump(container)
+        self._base.sign_and_dump(container, master_key)
 
-    def remove_ssh_key(self, auth_id:str)->None:
+    def remove_ssh_key(self, password:str, auth_id:str, _iterations:int=None)->None:
         """
         This function removes the SSH key of a user
         
@@ -106,6 +106,8 @@ class ContainerSSH():
         :type auth_id: str
         """
         container = self._base.load()
+
+        master_key = self._base.get_master_key(container, password, _iterations)
 
         if auth_id in container["auth"]["users"] :
             if "ssh" in container["auth"]["users"][auth_id]:
@@ -118,7 +120,7 @@ class ContainerSSH():
         else:
             raise Exception(f"user {auth_id} doesn't exists")
             
-        self._base.dump(container)
+        self._base.sign_and_dump(container, master_key)
 
     def list_ssh_key(self)->dict:       
         """
