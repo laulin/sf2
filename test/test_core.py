@@ -143,3 +143,15 @@ class TestCore(unittest.TestCase):
         expected = "Example ! "
 
         self.assertEqual(result, expected)
+
+    def test_change_password(self):
+
+        core = Core(_iterations=100)
+        core.encrypt(SOURCE, ENCRYPTED_FILE, PASSWORD)
+
+        core.ssh_add(ENCRYPTED_FILE, PASSWORD, PUBLIC_KEY)
+
+        core.change_password(ENCRYPTED_FILE, PASSWORD, "NEW SECRET")
+
+        result = core.verify_ssh(ENCRYPTED_FILE, PRIVATE_KEY, None, AUTH_ID)
+        self.assertTrue(result)

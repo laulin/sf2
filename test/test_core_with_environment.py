@@ -223,4 +223,19 @@ class TestCore(unittest.TestCase):
         result = core.verify_ssh(ENCRYPTED_FILE, config_file=CUSTOM_CONFIG_FILE_PATH)
         self.assertTrue(result)
 
+    def test_change_password(self):
+
+        core = CoreWithEnvironment(_iterations=100, 
+                                   default_public_key=PUBLIC_KEY, 
+                                   default_private_key=PRIVATE_KEY, 
+                                   default_auth_id="test@test", 
+                                   default_config_file=CONFIG_FILE_PATH)
+
+        core.ssh_add(ENCRYPTED_FILE, PASSWORD)
+
+        core.change_password(ENCRYPTED_FILE, PASSWORD, "NEW_PASSWORD")
+
+        result = core.verify_ssh(ENCRYPTED_FILE, config_file=CONFIG_FILE_PATH)
+        self.assertTrue(result)
+
     

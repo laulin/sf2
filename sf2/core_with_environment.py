@@ -78,6 +78,9 @@ class CoreWithEnvironment:
     def new(self, filename:str, password:str, force:bool=False, support_format:str="msgpack"):
         return self._core.new(filename, password, force, support_format)
     
+    def change_password(self, filename:str, old_password:str, new_password:str, support_format:str="msgpack"):
+        return self._core.change_password(filename, old_password, new_password, support_format)
+    
     def get_default_private_key(self)->str:
         if self._default_private_key is None:
             return os.path.join(str(Path.home()), ".ssh", "id_rsa")

@@ -98,6 +98,28 @@ class ContainerSSH():
 
         self._base.sign_and_dump(container, password, _iterations)
 
+    def update_master_key(self, password:str, _iterations:int=None)->None:
+        container = self._base.load()
+        master_key = self._base.get_master_key(container, password, _iterations)
+
+        for user in container["auth"]["users"]:
+            user_data = container["auth"]["users"][user]["ssh"]
+            public_key = load_ssh_public_key(bytes(user_data["public-key"], "utf8"))
+
+            encrypted_master_key = public_key.encrypt(
+                master_key,
+                padding.OAEP(
+                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                    algorithm=hashes.SHA256(),
+                    label=None
+                )
+            )
+
+            user_data["encrypted_master_key"] = encrypted_master_key
+
+        self._base.sign_and_dump(container, password, _iterations)
+
+
     def remove_ssh_key(self, password:str, auth_id:str, _iterations:int=None)->None:
         """
         This function removes the SSH key of a user

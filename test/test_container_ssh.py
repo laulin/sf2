@@ -77,4 +77,20 @@ class TestContainerSSH(unittest.TestCase):
         results = self.c.list_ssh_key()
 
         self.assertTrue("test@test" in results)
+
+    def test_update_master_key(self):
+        
+        self.base.create(SECRET, False, _iterations=ITERATIONS)
+        self.c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, _iterations=ITERATIONS)
+        
+        self.c.write(b"hello", "test@test", PRIVATE_SSH_KEY, None)
+
+        self.base.change_password(SECRET, "NEW_SECRET", ITERATIONS)        
+        self.c.update_master_key("NEW_SECRET", ITERATIONS)
+
+        results = self.c.read("test@test", PRIVATE_SSH_KEY, None)
+
+        expected = b"hello"
+
+        self.assertEqual(results, expected)
         

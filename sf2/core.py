@@ -99,6 +99,14 @@ class Core:
         container = ContainerSSH(base)
         container.add_ssh_key(password, public_key_file, auth_id, self._iterations)
 
+    def change_password(self, filename:str, old_password:str, new_password:str, support_format:str="msgpack"):
+
+        support = self.get_support(filename, support_format)
+        base = ContainerBase(support)
+        container = ContainerSSH(base)
+        base.change_password(old_password, new_password, self._iterations)
+        container.update_master_key(new_password, self._iterations)
+
     def ssh_rm(self, filename:str, password:str, auth_id:str=None, support_format:str="msgpack"):
         auth_id = self.get_auth_id(auth_id)
         support = self.get_support(filename, support_format)
