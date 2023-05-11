@@ -36,7 +36,8 @@ class SF2:
             "convert": self.convert,
             "ssh": self.ssh,
             "new": self.new,
-            "app": self.app
+            "app": self.app,
+            "password": self.change_password
         }
 
         try:
@@ -139,6 +140,27 @@ class SF2:
                 
         for filename in self._args.infilenames:
             self._core.new(filename, password, self._args.force, self._args.format)
+
+    def change_password(self):
+        if len(self._args.infilenames) == 0:
+            raise Exception("At least one file must be provided")
+        
+        if not self._args.password:
+            old_password = getpass()
+        else:
+            old_password = self._args.password
+
+        if not self._args.new_password:
+            new_password = getpass("New password : ")
+            new_password_copy = getpass("Confirm new password : ")
+            if new_password != new_password_copy:
+                raise Exception("Password are not the same, abord")
+            self.check_password_strength(new_password)
+        else:
+            new_password = self._args.new_password
+     
+        for filename in self._args.infilenames:
+            self._core.change_password(filename, old_password, new_password, self._args.format)
 
     def app(self):
         run_app(config_file=self._args.config_file)

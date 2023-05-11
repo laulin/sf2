@@ -129,6 +129,13 @@ def get_args(cli_args=None):
     add_log(new_parser)
     add_format_and_tail_file(new_parser)
 
+    # change password
+    change_password_parser = subparsers.add_parser('password', help='Change the password')
+    add_password(change_password_parser)
+    change_password_parser.add_argument('-n', action='store', required=False, dest="new_password", default=None, help='Provide the new password')
+    add_log(change_password_parser)
+    add_format_and_tail_file(change_password_parser)
+
     # app
     app_parser = subparsers.add_parser('app', help='Run gui')
     add_configFile(app_parser)
