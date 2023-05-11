@@ -93,4 +93,31 @@ class TestContainerSSH(unittest.TestCase):
         expected = b"hello"
 
         self.assertEqual(results, expected)
+
+    def test_ls_with_exact_match(self):
+        
+        self.base.create(SECRET, False, _iterations=ITERATIONS)
+        self.c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, _iterations=ITERATIONS)
+        
+        results = self.c.list_ssh_key("test@test")
+
+        self.assertEqual(["test@test"], list(results))
+
+    def test_ls_with_regex(self):
+        
+        self.base.create(SECRET, False, _iterations=ITERATIONS)
+        self.c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, _iterations=ITERATIONS)
+        
+        results = self.c.list_ssh_key(".*@test")
+
+        self.assertEqual(["test@test"], list(results))
+
+    def test_ls_no_match(self):
+        
+        self.base.create(SECRET, False, _iterations=ITERATIONS)
+        self.c.add_ssh_key(SECRET, PUBLIC_SSH_KEY, _iterations=ITERATIONS)
+        
+        results = self.c.list_ssh_key("tesu.*")
+
+        self.assertEqual([], list(results))
         

@@ -1,5 +1,5 @@
 import logging
-from pprint import pprint
+import re
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet
@@ -144,16 +144,28 @@ class ContainerSSH():
             
         self._base.sign_and_dump(container, password, _iterations)
 
-    def list_ssh_key(self)->dict:       
+    def list_ssh_key(self, auth_id_pattern:str=None)->dict:       
         """
         This function returns a dictionary of all the users and their public ssh keys
         """
         container = self._base.load()
-     
+
         output = dict()
-        for user, value in container["auth"]["users"].items():
-            if "ssh" in value:
-                output[user] = value["ssh"]["public-key"]
+
+        users = container["auth"]["users"]
+
+        if auth_id_pattern in users:
+            if "ssh" in users[auth_id_pattern]:
+                output[auth_id_pattern] = users[auth_id_pattern]["ssh"]["public-key"]
+     
+        else:
+            for user, value in container["auth"]["users"].items():
+                if "ssh" in value:
+                    if not auth_id_pattern:
+                        output[user] = value["ssh"]["public-key"]
+                    else:
+                        if re.search(auth_id_pattern, user) is not None:
+                            output[user] = value["ssh"]["public-key"]
             
         self._base.dump(container)
 
