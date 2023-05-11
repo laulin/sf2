@@ -1,3 +1,5 @@
 cryptography
-dearpygui
 inotify
+msgpack
+flufl.lock
+password-validator
