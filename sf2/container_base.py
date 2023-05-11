@@ -132,7 +132,8 @@ class ContainerBase:
             self._log.debug(f"signature is {generated_signature}, expected is {signature}")
             raise InvalidSignature("Master key is invalid")
         
-    def _create_container(self, password:str, data:bytes, users:dict, _iterations:int=None)->dict:     
+    def _create_container(self, password:str, data:bytes, users:dict, _iterations:int=None)->dict:    
+        
         master_iv = self._create_iv()
         master_data_key = self._create_master_data_key()
         master_key = self.kdf(master_iv, password, _iterations)
@@ -359,6 +360,9 @@ class ContainerBase:
         self.dump(container)
 
     def change_password(self, old_password:str, new_password:str, _iterations:int=None)->bytes:
+
+        if _iterations is None:
+            _iterations = ContainerBase.KDF_ITERATION 
        
         container = self.load()
 
