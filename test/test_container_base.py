@@ -81,4 +81,17 @@ class TestContainer(unittest.TestCase):
         expected = b"hello"
 
         self.assertEqual(results, expected)
+
+    def test_change_password(self):
+        support = MsgpackSupport(WORKING_FILE)
+        self.c = ContainerBase(support)
+
+        self.c.create(SECRET, False, ITERATIONS)
+        self.c.write(b"hello", SECRET, ITERATIONS)
+        self.c.change_password(SECRET, "new_pwd", ITERATIONS)
+        results = self.c.read("new_pwd", ITERATIONS)
+
+        expected = b"hello"
+
+        self.assertEqual(results, expected)
         

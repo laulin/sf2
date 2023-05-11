@@ -357,3 +357,20 @@ class ContainerBase:
         container = auth_sign.sign(password)
 
         self.dump(container)
+
+    def change_password(self, old_password:str, new_password:str, _iterations:int=None)->bytes:
+       
+        container = self.load()
+
+        # Check if the auth section was not modifier
+        auth_sign = AuthSign(container)
+        auth_sign.verify()
+
+        master_data_key = self.get_master_data_key(container, old_password, _iterations)
+
+        data = self.get_plain_data(container, master_data_key)
+        users = container["auth"]["users"]
+
+        new_container = self._create_container(new_password, data, users, _iterations)
+        self.dump(new_container)
+
