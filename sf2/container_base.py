@@ -131,6 +131,39 @@ class ContainerBase:
         if signature != generated_signature:
             self._log.debug(f"signature is {generated_signature}, expected is {signature}")
             raise InvalidSignature("Master key is invalid")
+        
+    def _create_container(self, password:str, data:bytes, users:dict, _iterations:int=None)->dict:     
+        master_iv = self._create_iv()
+        master_data_key = self._create_master_data_key()
+        master_key = self.kdf(master_iv, password, _iterations)
+
+        fernet_master_data_key = Fernet(master_key)
+        encrypted_master_data_key = fernet_master_data_key.encrypt(master_data_key)
+        
+        fernet_data = Fernet(self.b64encode(master_data_key))
+        encrypted_data = fernet_data.encrypt(data)
+
+
+        container = {
+            "version" : "2",
+            "auth" : {
+                "master_iv" : master_iv,
+                "encrypted_master_data_key" : encrypted_master_data_key,
+                "users":users,
+                "challenge":None,
+                "signature":None
+
+            },
+            "data" : encrypted_data
+        }
+
+        self.set_master_key_signature(container, master_key)
+
+        auth_sign = AuthSign(container, _iterations=_iterations)
+        auth_sign.add_keys(password)
+        container = auth_sign.sign(password)
+
+        return container
 
 
     def create(self, password:str, force:bool=False, _iterations:int=None)->None:
@@ -153,35 +186,7 @@ class ContainerBase:
         if not force and self._support.is_exist():
             raise Exception(f"{self._support.get_filename()} already exists")
         
-        master_iv = self._create_iv()
-        master_data_key = self._create_master_data_key()
-        master_key = self.kdf(master_iv, password, _iterations)
-
-        fernet_master_data_key = Fernet(master_key)
-        encrypted_master_data_key = fernet_master_data_key.encrypt(master_data_key)
-        
-        fernet_data = Fernet(self.b64encode(master_data_key))
-        encrypted_data = fernet_data.encrypt(b"")
-
-
-        container = {
-            "version" : "2",
-            "auth" : {
-                "master_iv" : master_iv,
-                "encrypted_master_data_key" : encrypted_master_data_key,
-                "users":{},
-                "challenge":None,
-                "signature":None
-
-            },
-            "data" : encrypted_data
-        }
-
-        self.set_master_key_signature(container, master_key)
-
-        auth_sign = AuthSign(container, _iterations=_iterations)
-        auth_sign.add_keys(password)
-        container = auth_sign.sign(password)
+        container = self._create_container(password, b"", {}, _iterations)
         
         self.dump(container)
 
