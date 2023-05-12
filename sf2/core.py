@@ -105,7 +105,7 @@ class Core:
         container = ContainerSSH(base)
         container.remove_ssh_key(password, auth_id_pattern, self._iterations)
 
-        # Once remove at least one ssh key, we need to change all keys to prevent leaked key to be reused
+        # Once remove at least one ssh key, we need to change all keys to prevent leaked keys to be reused
         base.change_password(password, password)
         container.update_master_key(password)
 
