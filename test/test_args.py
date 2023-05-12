@@ -133,8 +133,8 @@ class TestArgs(unittest.TestCase):
 
     # ssh rm
     def test_ssh_rm(self):
-        args = get_args(["ssh", "rm", "-a", "foo@bar", "out.x"]) 
-        results = [args.commands, args.ssh_commands, args.auth_id, args.infilenames]
+        args = get_args(["ssh", "rm", "-p", "foo@bar", "out.x"]) 
+        results = [args.commands, args.ssh_commands, args.auth_id_pattern, args.infilenames]
         expected = ['ssh', "rm", "foo@bar", ["out.x"]]
 
         self.assertEqual(results, expected)

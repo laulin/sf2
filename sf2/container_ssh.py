@@ -1,5 +1,7 @@
 import logging
 import re
+from multiprocessing import Pool
+from typing import Tuple
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet
@@ -9,6 +11,20 @@ from cryptography.hazmat.primitives.serialization import load_ssh_private_key
 from cryptography.hazmat.primitives.asymmetric import padding
 
 from sf2.container_base import ContainerBase
+
+def encrypt_master_key(user:str, public_key_bytes:bytes, master_key:bytes):
+    public_key = load_ssh_public_key(public_key_bytes)
+
+    encrypted_master_key = public_key.encrypt(
+        master_key,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+
+    return user, encrypted_master_key
 
 class ContainerSSH():
     """
@@ -102,18 +118,17 @@ class ContainerSSH():
         container = self._base.load()
         master_key = self._base.get_master_key(container, password, _iterations)
 
+        queue = []
         for user in container["auth"]["users"]:
             user_data = container["auth"]["users"][user]["ssh"]
-            public_key = load_ssh_public_key(bytes(user_data["public-key"], "utf8"))
+            public_key_bytes = bytes(user_data["public-key"], "utf8")
+            queue.append((user, public_key_bytes, master_key))
+            
+        with Pool() as p:
+            result = p.starmap(encrypt_master_key, queue)
 
-            encrypted_master_key = public_key.encrypt(
-                master_key,
-                padding.OAEP(
-                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                    algorithm=hashes.SHA256(),
-                    label=None
-                )
-            )
+        for user, encrypted_master_key in result:
+            user_data = container["auth"]["users"][user]["ssh"]
 
             user_data["encrypted_master_key"] = encrypted_master_key
 
