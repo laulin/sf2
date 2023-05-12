@@ -123,12 +123,12 @@ class SF2:
     def ssh_rm(self):
         password = self.get_password()
         for filename in self._args.infilenames:
-            self._core.ssh_rm(filename, password, self._args.auth_id, self._args.format, self._args.config_file)
+            self._core.ssh_rm(filename, password, self._args.auth_id_pattern, self._args.format, self._args.config_file)
 
     def ssh_ls(self):
         for filename in self._args.infilenames:
             print(f"{filename} :")
-            for user, pk in self._core.ssh_ls(filename, self._args.format):
+            for user, pk in self._core.ssh_ls(filename, self._args.auth_id_pattern, self._args.format):
                 print(user, pk)
 
     def new(self):
