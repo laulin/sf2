@@ -111,10 +111,11 @@ class SSH:
             return
             
         support_format = pin.pin["ssh_ls_format"]
+        auth_id = pin.pin["ssh_ls_auth_id"]
         
         core = CoreWithEnvironment()
         try:
-            results = core.ssh_ls(infilename, support_format)
+            results = core.ssh_ls(infilename, auth_id, support_format)
             output.clear("ssh_ls")
 
             with output.use_scope("ssh_ls"):
@@ -162,7 +163,7 @@ class SSH:
         return output.put_column([
             pin.put_input("ssh_rm_filename", help_text="Enter the entr file path here", label="Input encrypted file"),
             pin.put_input("ssh_rm_password", "password", help_text="Enter the password here", label="Password"),
-            pin.put_input("ssh_rm_auth_id", help_text="Enter your auth_id here", label="Auth ID"), 
+            pin.put_input("ssh_rm_auth_id", help_text="Enter your auth_id (or the regex) here", label="Auth ID"), 
             output.put_text("Options"),
             pin.put_radio("ssh_rm_format", ["msgpack", "json"], value="msgpack"),
 
@@ -180,6 +181,7 @@ class SSH:
     def _create_ls(self):
         tmp = output.put_column([
             pin.put_input("ssh_ls_filename", help_text="Enter the entr file path here", label="Input encrypted file"), 
+            pin.put_input("ssh_ls_auth_id", help_text="Enter your auth_id (or the regex) here", label="Auth ID", value="^.*$"), 
             output.put_text("Options"),
             pin.put_radio("ssh_ls_format", ["msgpack", "json"], value="msgpack"),
 
