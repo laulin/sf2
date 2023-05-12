@@ -3,3 +3,6 @@ inotify
 msgpack
 flufl.lock
 password-validator
+pyyaml
+pywebio
+pywebview
