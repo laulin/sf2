@@ -16,3 +16,6 @@ tests:
 
 integration:
 	python3 -m unittest discover -s test -p int_*.py
+
+docker:
+	docker build -t test_sf2 .
