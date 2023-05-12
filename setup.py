@@ -14,7 +14,7 @@ setup(name='sf2',
     zip_safe=False,
     classifiers=[
       "Programming Language :: Python :: 3",
-      "License :: OSI Approved :: MIT LICENSE",
+      "License :: OSI Approved :: MIT License",
       "Operating System :: OS Independent",
       "Development Status :: 5 - Production/Stable",
       "Intended Audience :: Information Technology",
