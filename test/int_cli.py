@@ -26,21 +26,21 @@ class TestCli(unittest.TestCase):
         with open(SOURCE, "w") as f:
             f.write("Example ! ")
 
-        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-i", SOURCE, "-o", ENCRYPTED])
+        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-w", "-i", SOURCE, "-o", ENCRYPTED])
 
     def test_new(self):
         with open(SOURCE, "w") as f:
             f.write("Example ! ")
 
-        subprocess.call(["python3", "-m", "sf2", "new", "-m", "foobar", ENCRYPTED])
+        subprocess.call(["python3", "-m", "sf2", "new", "-m", "foobar", "-w", ENCRYPTED])
 
     def test_decrypt(self):
         
         plain = os.path.join(TEST_DIR, "plain.txt")
 
-        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-i", SOURCE, "-o", ENCRYPTED])
+        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-w", "-i", SOURCE, "-o", ENCRYPTED])
 
-        subprocess.call(["python3", "-m", "sf2", "decrypt", "--master-password", "-m", "foobar", "-i", ENCRYPTED, "-o", plain])
+        subprocess.call(["python3", "-m", "sf2", "decrypt", "--password", "-m", "foobar", "-w", "-i", ENCRYPTED, "-o", plain])
 
         with open(plain) as f:
             result = f.read()
@@ -56,9 +56,9 @@ class TestCli(unittest.TestCase):
         with open(SOURCE, "w") as f:
             f.write("Example ! ")
 
-        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-i", SOURCE, "-o", ENCRYPTED])
+        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-w", "-i", SOURCE, "-o", ENCRYPTED])
         subprocess.call(["python3", "-m", "sf2", "ssh", "add", "-k", PUBLIC_KEY, "-m", "foobar", ENCRYPTED])
-        subprocess.call(["python3", "-m", "sf2", "decrypt", "--ssh-key", "-y", PRIVATE_KEY, "-a", AUTH_ID, "-i", ENCRYPTED, "-o", plain])
+        subprocess.call(["python3", "-m", "sf2", "decrypt", "--ssh", "-y", PRIVATE_KEY, "-a", AUTH_ID, "-i", ENCRYPTED, "-o", plain])
 
         with open(plain) as f:
             result = f.read()
@@ -69,27 +69,27 @@ class TestCli(unittest.TestCase):
 
     def test_verify(self):
 
-        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-i", SOURCE, "-o", ENCRYPTED])
-        result = subprocess.check_output(["python3", "-m", "sf2", "verify", "--master-password", "-m", "foobar", ENCRYPTED])
+        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-w", "-i", SOURCE, "-o", ENCRYPTED])
+        result = subprocess.check_output(["python3", "-m", "sf2", "verify", "--password", "-m", "foobar", ENCRYPTED])
         expected = b'/tmp/test/encrypted.x : OK\n'
 
         self.assertEqual(result, expected)
 
     def test_verify_ssh(self):
         
-        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-i", SOURCE, "-o", ENCRYPTED])
+        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-w", "-i", SOURCE, "-o", ENCRYPTED])
         subprocess.call(["python3", "-m", "sf2", "ssh", "add", "-k", PUBLIC_KEY, "-m", "foobar", ENCRYPTED])
-        result = subprocess.check_output(["python3", "-m", "sf2", "verify", "--ssh-key", "-y", PRIVATE_KEY, "-a", AUTH_ID, ENCRYPTED])
+        result = subprocess.check_output(["python3", "-m", "sf2", "verify", "--ssh", "-y", PRIVATE_KEY, "-a", AUTH_ID, ENCRYPTED])
         expected = b'/tmp/test/encrypted.x : OK\n'
 
         self.assertEqual(result, expected)
 
     def test_verify_failed(self):
 
-        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-i", SOURCE, "-o", ENCRYPTED])
+        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-w", "-i", SOURCE, "-o", ENCRYPTED])
         # use bad password
         try:
-            subprocess.check_output(["python3", "-m", "sf2", "verify", "--master-password", "-m", "stuff", ENCRYPTED])
+            subprocess.check_output(["python3", "-m", "sf2", "verify", "--password", "-m", "stuff", ENCRYPTED])
         except Exception as e:
             result = e.output
         
@@ -99,18 +99,18 @@ class TestCli(unittest.TestCase):
 
     def test_add_ssh(self):
 
-        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-i", SOURCE, "-o", ENCRYPTED])
+        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-w", "-i", SOURCE, "-o", ENCRYPTED])
         subprocess.check_output(["python3", "-m", "sf2", "ssh", "add", "-k", PUBLIC_KEY, "-m", "foobar", ENCRYPTED])
 
     def test_rm_ssh(self):
 
-        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-i", SOURCE, "-o", ENCRYPTED])
+        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-w", "-i", SOURCE, "-o", ENCRYPTED])
         subprocess.call(["python3", "-m", "sf2", "ssh", "add", "-k", PUBLIC_KEY, "-m", "foobar", ENCRYPTED])
-        subprocess.call(["python3", "-m", "sf2", "ssh", "rm", "-a", AUTH_ID, ENCRYPTED])
+        subprocess.call(["python3", "-m", "sf2", "ssh", "rm", "-m", "foobar", "-p", AUTH_ID, ENCRYPTED])
 
     def test_ls_ssh(self):
         
-        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-i", SOURCE, "-o", ENCRYPTED])
+        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-w", "-i", SOURCE, "-o", ENCRYPTED])
         subprocess.call(["python3", "-m", "sf2", "ssh", "add", "-k", PUBLIC_KEY, "-m", "foobar", ENCRYPTED])
         result = subprocess.check_output(["python3", "-m", "sf2", "ssh", "ls", ENCRYPTED])
 
@@ -118,23 +118,23 @@ class TestCli(unittest.TestCase):
         self.assertEqual(len(lines), 2 )
 
     def test_new(self):
-        subprocess.call(["python3", "-m", "sf2", "new", "-m", "foobar", ENCRYPTED])
+        subprocess.call(["python3", "-m", "sf2", "new", "-m", "foobar", "-w", ENCRYPTED])
 
         self.assertTrue(os.path.exists(ENCRYPTED))
 
     def test_open(self):
 
-        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-i", SOURCE, "-o", ENCRYPTED])
-        result = subprocess.check_output(["python3", "-m", "sf2", "open", "--master-password", "-m", "foobar", "-p", "cat", ENCRYPTED])
+        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-w", "-i", SOURCE, "-o", ENCRYPTED])
+        result = subprocess.check_output(["python3", "-m", "sf2", "open", "--password", "-m", "foobar", "-p", "cat", ENCRYPTED])
         expected = b'Example ! '
 
         self.assertEqual(result, expected)
 
     def test_open_ssh(self):
 
-        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-i", SOURCE, "-o", ENCRYPTED])
+        subprocess.call(["python3", "-m", "sf2", "encrypt", "-m", "foobar", "-w", "-i", SOURCE, "-o", ENCRYPTED])
         subprocess.call(["python3", "-m", "sf2", "ssh", "add", "-m", "foobar", "-k", PUBLIC_KEY, "-a", AUTH_ID, ENCRYPTED])
-        result = subprocess.check_output(["python3", "-m", "sf2", "open", "--ssh-key", "-y", PRIVATE_KEY, "-a", AUTH_ID, "-p", "cat", ENCRYPTED])
+        result = subprocess.check_output(["python3", "-m", "sf2", "open", "--ssh", "-y", PRIVATE_KEY, "-a", AUTH_ID, "-p", "cat", ENCRYPTED])
         expected = b'Example ! '
 
         self.assertEqual(result, expected)
