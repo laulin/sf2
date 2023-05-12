@@ -120,7 +120,7 @@ class ContainerSSH():
         self._base.sign_and_dump(container, password, _iterations)
 
 
-    def remove_ssh_key(self, password:str, auth_id:str, _iterations:int=None)->None:
+    def remove_ssh_key(self, password:str, auth_id_pattern:str=None, _iterations:int=None)->None:
         """
         This function removes the SSH key of a user
         
@@ -129,18 +129,13 @@ class ContainerSSH():
         """
         container = self._base.load()
 
-        master_key = self._base.get_master_key(container, password, _iterations)
+        users_key = self._get_key_by_user(container, auth_id_pattern)
 
-        if auth_id in container["auth"]["users"] :
-            if "ssh" in container["auth"]["users"][auth_id]:
-                del container["auth"]["users"][auth_id]["ssh"]
-                if len(container["auth"]["users"][auth_id]) == 0:
-                    del container["auth"]["users"][auth_id]
-
-            else:
-                raise Exception(f"user {auth_id} doesn't use SSH key")
-        else:
-            raise Exception(f"user {auth_id} doesn't exists")
+        if len(users_key) == 0:
+            raise Exception(f"No user match {auth_id_pattern}")
+        
+        for user in users_key:
+            del container["auth"]["users"][user]            
             
         self._base.sign_and_dump(container, password, _iterations)
 
@@ -150,6 +145,11 @@ class ContainerSSH():
         """
         container = self._base.load()
 
+        output = self._get_key_by_user(container, auth_id_pattern)
+
+        return output
+
+    def _get_key_by_user(self, container:dict, auth_id_pattern:str=None)->dict:
         output = dict()
 
         users = container["auth"]["users"]
@@ -166,8 +166,6 @@ class ContainerSSH():
                     else:
                         if re.search(auth_id_pattern, user) is not None:
                             output[user] = value["ssh"]["public-key"]
-            
-        self._base.dump(container)
 
         return output
 
