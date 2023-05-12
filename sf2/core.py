@@ -99,27 +99,18 @@ class Core:
         container = ContainerSSH(base)
         container.add_ssh_key(password, public_key_file, auth_id, self._iterations)
 
-    def change_password(self, filename:str, old_password:str, new_password:str, support_format:str="msgpack"):
-
+    def ssh_rm(self, filename:str, password:str, auth_id_pattern:str=None, support_format:str="msgpack"):
         support = self.get_support(filename, support_format)
         base = ContainerBase(support)
         container = ContainerSSH(base)
-        base.change_password(old_password, new_password, self._iterations)
-        container.update_master_key(new_password, self._iterations)
+        container.remove_ssh_key(password, auth_id_pattern, self._iterations)
 
-    def ssh_rm(self, filename:str, password:str, auth_id:str=None, support_format:str="msgpack"):
-        auth_id = self.get_auth_id(auth_id)
-        support = self.get_support(filename, support_format)
-        base = ContainerBase(support)
-        container = ContainerSSH(base)
-        container.remove_ssh_key(password, auth_id, self._iterations)
-
-    def ssh_ls(self, filename:str, support_format:str="msgpack"):
+    def ssh_ls(self, filename:str, auth_id_pattern:str=None, support_format:str="msgpack"):
         output = list()
         support = self.get_support(filename, support_format)
         base = ContainerBase(support)
         container = ContainerSSH(base)
-        for user, pk in container.list_ssh_key().items():
+        for user, pk in container.list_ssh_key(auth_id_pattern).items():
             output.append((user, pk))
 
         return output
@@ -132,6 +123,14 @@ class Core:
         container = ContainerBase(support)
         container.create(password, force)
         container.write(b"", password)
+
+    def change_password(self, filename:str, old_password:str, new_password:str, support_format:str="msgpack"):
+
+        support = self.get_support(filename, support_format)
+        base = ContainerBase(support)
+        container = ContainerSSH(base)
+        base.change_password(old_password, new_password, self._iterations)
+        container.update_master_key(new_password, self._iterations)
 
     def get_support(self, filename:str, support_format:str):
         if support_format == "json":

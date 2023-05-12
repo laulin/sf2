@@ -139,7 +139,7 @@ class ContainerSSH():
             
         self._base.sign_and_dump(container, password, _iterations)
 
-    def list_ssh_key(self, auth_id_pattern:str=None)->dict:       
+    def list_ssh_key(self, auth_id_pattern:str="^.*$")->dict:       
         """
         This function returns a dictionary of all the users and their public ssh keys
         """

@@ -101,6 +101,16 @@ class TestCore(unittest.TestCase):
         excepted = 1
         self.assertEqual(result, excepted)
 
+    def test_ssh_ls_full_match(self):
+
+        core = Core(_iterations=100)
+        core.encrypt(SOURCE, ENCRYPTED_FILE, PASSWORD)
+
+        core.ssh_add(ENCRYPTED_FILE, PASSWORD, PUBLIC_KEY, AUTH_ID)
+        result = len(core.ssh_ls(ENCRYPTED_FILE, "test@test"))
+        excepted = 1
+        self.assertEqual(result, excepted)
+
     def test_decrypt_ssh(self):
 
         core = Core(_iterations=100)
